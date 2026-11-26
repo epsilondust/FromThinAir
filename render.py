@@ -41,7 +41,8 @@ def face_normal(points):
     return [c / length for c in n]
 
 
-def draw(mesh, highlight, scale, cam):
+def draw(mesh, highlight, scale, cam, base=(205, 215, 230), line="#1b1e24", paper="#f4f5f7"):
+    """Draw one mesh. Pass paper=None to leave the background clear, for drawing on another image."""
     VIEW, RIGHT, UP = cam
     polygons = []
     for index, face in enumerate(mesh["faces"]):
@@ -51,8 +52,8 @@ def draw(mesh, highlight, scale, cam):
             continue  # The face points away from the camera.
         depth = sum(dot(p, VIEW) for p in points) / len(points)
         shade = 0.75 + 0.25 * dot(normal, LIGHT)
-        base = (255, 160, 50) if index == highlight else (205, 215, 230)
-        color = "rgb(%d,%d,%d)" % tuple(min(255, int(c * shade)) for c in base)
+        tint = (255, 160, 50) if index == highlight else base
+        color = "rgb(%d,%d,%d)" % tuple(min(255, int(c * shade)) for c in tint)
         xy = " ".join(
             "%.1f,%.1f" % (SIZE / 2 + scale * dot(p, RIGHT), SIZE / 2 - scale * dot(p, UP)) for p in points
         )
@@ -63,8 +64,9 @@ def draw(mesh, highlight, scale, cam):
     body = "\n".join(p for _, p in polygons)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SIZE} {SIZE}" '
-        f'stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">\n'
-        f'<rect width="{SIZE}" height="{SIZE}" fill="#f4f5f7" stroke="none"/>\n{body}\n</svg>\n'
+        f'stroke="{line}" stroke-width="1" stroke-linejoin="round">\n'
+        + (f'<rect width="{SIZE}" height="{SIZE}" fill="{paper}" stroke="none"/>\n' if paper else "")
+        + f'{body}\n</svg>\n'
     )
 
 

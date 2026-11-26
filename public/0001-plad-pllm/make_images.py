@@ -2,8 +2,9 @@
 
     python public/0001-plad-pllm/make_images.py
 
-It writes strip, steps, loop, lest and edits into the images folder next to this file, each as SVG.
+It writes strip, steps, loop, lest, edits and cover into the images folder next to this file, each as SVG.
 When rsvg-convert is installed it also writes a PNG of each, for platforms that reject SVG.
+The cover is 1920 by 1080, the size of a LinkedIn article cover.
 Every shape in the images is a real trace from data/round0.npz.
 """
 
@@ -20,7 +21,7 @@ import numpy as np
 
 import render
 import shard
-from readme_images import INK, QUIET, label, moves_face_camera, sheet
+from readme_images import FONT, INK, QUIET, label, moves_face_camera, sheet
 
 OUT = os.path.join(HERE, "images")
 CELL = 240
@@ -30,9 +31,9 @@ ARROW = (
 )
 
 
-def place(mesh, x, y, scale, cam, highlight=-1, size=CELL):
-    """Draw one mesh as a square placed at (x, y)."""
-    picture = render.draw(mesh, highlight, scale, cam)
+def place(mesh, x, y, scale, cam, highlight=-1, size=CELL, **look):
+    """Draw one mesh as a square placed at (x, y). The look is passed on to render.draw."""
+    picture = render.draw(mesh, highlight, scale, cam, **look)
     return picture.replace("<svg xmlns", f'<svg x="{x}" y="{y}" width="{size}" height="{size}" xmlns', 1)
 
 
@@ -209,4 +210,40 @@ if __name__ == "__main__":
     parts.append(label(width / 2, CELL + 206, "Illustration with From Thin Air moves. PLLM edits CAD programs.", QUIET, 15))
     parts.append(label(width / 2, CELL + 228, "Each shorter list still builds exactly the shape shown above it.", QUIET, 15))
     write("edits", width, CELL + 246, parts)
-    print("wrote strip, steps, loop, lest and edits to", OUT)
+
+    # The cover: a dark wall of real shapes, with one build running along the bottom.
+    # The wall is every clean shape with four or five moves, one per surface, in dataset order.
+    NIGHT, PALE, GLOW = "#0e1320", "#a9b8d6", "#ffa032"
+    pool = np.flatnonzero(clean & (lengths >= 4))
+    pool = pool[np.sort(np.unique(surface[pool], return_index=True)[1])]
+    parts = [
+        f'<rect width="1920" height="1080" fill="{NIGHT}"/>',
+        '<defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">'
+        f'<stop offset="0" stop-color="{NIGHT}" stop-opacity="0.96"/>'
+        f'<stop offset="0.62" stop-color="{NIGHT}" stop-opacity="0.82"/>'
+        f'<stop offset="1" stop-color="{NIGHT}" stop-opacity="0.2"/></linearGradient>'
+        '<linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">'
+        f'<stop offset="0" stop-color="{NIGHT}" stop-opacity="0"/>'
+        f'<stop offset="0.35" stop-color="{NIGHT}" stop-opacity="0.9"/></linearGradient></defs>',
+    ]
+    for k in range(12 * 7):
+        t = traces[pool[k]]
+        s, c, _ = render.fit(t)
+        parts.append(place(t["steps"][-1], (k % 12) * 160, (k // 12) * 160 - 20, s, c, size=160, base=(70, 92, 140), line=NIGHT, paper=None))
+    parts.append('<rect width="1920" height="640" fill="url(#fade)"/>')
+    parts.append('<rect y="560" width="1920" height="520" fill="url(#floor)"/>')
+    parts.append(f'<text x="96" y="170" font-size="30" font-weight="700" letter-spacing="6" fill="{GLOW}">FROM THIN AIR</text>')
+    parts.append('<text x="96" y="290" font-size="104" font-weight="700" fill="#ffffff">PLAD, PLLM, and</text>')
+    parts.append('<text x="96" y="410" font-size="104" font-weight="700" fill="#ffffff">a dataset built backward</text>')
+    parts.append(f'<text x="96" y="490" font-size="40" fill="{PALE}">Every shape comes with the moves that built it.</text>')
+    for step in range(6):
+        x = 70 + step * 300
+        parts.append(place(build["steps"][step], x, 690, build_scale, build_cam, highlights[step], size=280, base=(196, 210, 238), line=NIGHT, paper=None))
+        text = "a cube" if step == 0 else f'{step}. {build["moves"][step - 1]["op"]}'
+        parts.append(label(x + 140, 1010, text, PALE, 28))
+    path = os.path.join(OUT, "cover.svg")
+    with open(path, "w") as f:
+        f.write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" {FONT}>\n' + "\n".join(parts) + "\n</svg>\n")
+    if shutil.which("rsvg-convert"):
+        subprocess.run(["rsvg-convert", "-w", "1920", path, "-o", path[:-4] + ".png"], check=True)
+    print("wrote strip, steps, loop, lest, edits and cover to", OUT)

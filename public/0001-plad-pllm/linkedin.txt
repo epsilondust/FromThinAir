@@ -1,0 +1,34 @@
+I'm working on an algorithm that generates training data from thin air. It starts with the rules of a system and nothing else, and the question is whether a machine can figure out how to use them.
+
+My test case is polygon modeling. Each of the first 10,000 shapes comes with the moves that built it, and each one rebuilds exactly when those moves are replayed.
+
+𝗛𝗼𝘄 𝗶𝘁 𝘄𝗼𝗿𝗸𝘀
+
+I pick the modeling moves first and then run them on a cube, which means the history of each shape is known before the shape exists. That gives me the seed data, and the rest of the plan is a loop that builds on it:
+
+1. 𝗦𝗲𝗲𝗱: random moves on a cube make the first examples.
+2. 𝗜𝗺𝗮𝗴𝗶𝗻𝗲: a frozen 3D generator supplies target shapes.
+3. 𝗔𝘁𝘁𝗲𝗺𝗽𝘁: a small model tries to build each target with modeling moves.
+4. 𝗖𝗵𝗲𝗰𝗸: the built shape is measured against the target.
+5. 𝗞𝗲𝗲𝗽: the moves are stored with the shape they actually built, which makes even a miss a correct example.
+6. 𝗥𝗲𝘁𝗿𝗮𝗶𝗻: the model trains on everything kept, and the loop goes around again.
+
+𝗪𝗵𝗮𝘁 𝗜 𝗹𝗲𝗮𝗿𝗻𝗲𝗱 𝗳𝗿𝗼𝗺 𝗣𝗟𝗔𝗗 𝗮𝗻𝗱 𝗣𝗟𝗟𝗠
+
+Two papers already cover the core of this loop, and they changed how I think about my own.
+
+PLAD is from Kenny Jones, Homer Walke and Daniel Ritchie at Brown, published in 2022.
+• Its version of the keep step is called latent execution self-training. A model guesses a program for a shape, the program is run, and the program is paired with the shape it actually made, and that makes the label always correct.
+• Their best results came from mixing that with plain self-training, because plain self-training keeps the data close to real shapes.
+
+PLLM is from the same group this year, with Yuanbo Li and a team at Toyota Research Institute.
+• It runs the loop on a language model that writes CAD programs.
+• It also edits the programs it keeps, adding or removing steps, to make more examples that are still correct by construction.
+
+𝗪𝗵𝗮𝘁 𝗜'𝗺 𝘄𝗼𝗿𝗸𝗶𝗻𝗴 𝗼𝗻 𝗻𝗲𝘅𝘁
+
+Neither paper really teaches a model what a good modeling history looks like. That is the part where only a person can direct. For polygon modeling the history is the part people edit, which makes it the thing I want to work on next.
+
+Code, data and a journal of every step: https://github.com/epsilondust/FromThinAir
+PLAD: https://arxiv.org/abs/2011.13045
+PLLM: https://arxiv.org/abs/2602.12561

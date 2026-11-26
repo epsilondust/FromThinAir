@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0006: The public folder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · previous: <a href="0005-evals.html">0005</a></nav>
+<h1>0006: The public folder</h1>
+<p class="meta">2026-11-26 · <span class="status">Done, not reviewed</span></p>
+
+<p>The owner asked for this step before it started.</p>
+
+<h2>Goal of this step</h2>
+<p>Give public writing a home in the repo. The owner decided that learning in public is part of
+the project, and that posts live next to the code with their images and their sources.</p>
+
+<h2>What was done</h2>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>public/README.md</code></td><td>New. It lists the posts, describes the folder layout, and states the rules for posts.</td></tr>
+  <tr><td><code>public/0001-plad-pllm/make_images.py</code></td><td>New. It makes the six images for the first post from <code>data/round0.npz</code>.</td></tr>
+  <tr><td><code>public/0001-plad-pllm/post.md</code></td><td>New. The draft of the first post. It is laid out with headings and bullets for the method, and four of the images are placed in it.</td></tr>
+  <tr><td><code>public/0001-plad-pllm/linkedin.txt</code></td><td>New. The short feed post that goes with the article. It is plain text with Unicode bold headings, because LinkedIn feed posts do not render markdown.</td></tr>
+  <tr><td><code>render.py</code></td><td>The draw function takes a fill color, a line color and an optional background. The defaults are the old look, and the other images did not change.</td></tr>
+  <tr><td><code>public/0001-plad-pllm/images/</code></td><td>New. The six images, each as SVG and as PNG.</td></tr>
+</table>
+
+<p>The layout gives each post one folder, named with a four-digit number and a short slug.</p>
+<table>
+  <tr><th>Path</th><th>What it holds</th></tr>
+  <tr><td><code>public/README.md</code></td><td>The list of posts, each with its platform and status</td></tr>
+  <tr><td><code>public/&lt;NNNN-slug&gt;/post.md</code></td><td>The text of the post</td></tr>
+  <tr><td><code>public/&lt;NNNN-slug&gt;/images/</code></td><td>The rendered images the post uses</td></tr>
+  <tr><td><code>public/&lt;NNNN-slug&gt;/make_images.py</code></td><td>The script that makes those images from data in the repo</td></tr>
+  <tr><td><code>public/&lt;NNNN-slug&gt;/sources.md</code></td><td>The papers and links the post cites</td></tr>
+</table>
+
+<h2>The rules for posts</h2>
+<ul>
+  <li><strong>Posts point back to the journal.</strong> Every number in a post comes from a journal entry or a script in the repo.</li>
+  <li><strong>Result images are real.</strong> They are rendered from real traces. An image that only explains an idea is labeled as an illustration.</li>
+  <li><strong>Results come first.</strong> A post about a result waits until the result exists. A post about what was learned can go out at any time.</li>
+  <li><strong>Sources are credited.</strong> Authors are named, every paper is linked, and figures are our own renders.</li>
+</ul>
+
+<h2>The renders for the first post</h2>
+<p>The owner approved the renders after the folder was set up. Every shape in them is a real
+trace from round zero. The first run made three images in 2.0 seconds on an Apple M2 Max with one process, including
+loading the dataset. The owner then asked for diagrams of the method, and the run with five
+images took 3.0 seconds. The owner asked for a cover image last, and the run with all six took
+3.1 seconds.</p>
+<figure>
+  <img src="../public/0001-plad-pllm/images/cover.png" alt="The cover image: a dark wall of shapes, a title, and one build along the bottom" style="width:100%">
+  <figcaption>The cover, at 1920 by 1080. The wall is 84 clean round-zero shapes, and the row along the bottom is one trace step by step.</figcaption>
+</figure>
+<figure>
+  <img src="../public/0001-plad-pllm/images/strip.png" alt="Five shapes, built with one to five moves" style="width:100%">
+  <figcaption>The strip. One clean shape for each number of moves, all from one camera at one scale.</figcaption>
+</figure>
+<figure>
+  <img src="../public/0001-plad-pllm/images/steps.png" alt="One trace drawn step by step" style="width:100%">
+  <figcaption>One trace step by step. The orange face is where the next move lands.</figcaption>
+</figure>
+<figure>
+  <img src="../public/0001-plad-pllm/images/lest.png" alt="A target shape, a slightly different shape, and the moves that built the second one" style="width:100%">
+  <figcaption>The LEST illustration. The same guess makes one pair for self-training and one for LEST. It is labeled as an illustration, because the guess is staged.</figcaption>
+</figure>
+<figure>
+  <img src="../public/0001-plad-pllm/images/loop.png" alt="The six steps of the loop" style="width:100%">
+  <figcaption>The loop. Only the seed step has a solid outline, because only that step is built.</figcaption>
+</figure>
+<figure>
+  <img src="../public/0001-plad-pllm/images/edits.png" alt="One move list and two shorter versions of it, each with its shape" style="width:100%">
+  <figcaption>The edits illustration. Removing moves from the end of a list gives more correct pairs. It uses our moves, not PLLM's CAD programs.</figcaption>
+</figure>
+<ul>
+  <li><strong>How the illustration was made.</strong> The script finds two real traces that share every move except the amount of the last one. One plays the target and the other plays the guess. A model did not make the guess.</li>
+  <li><strong>How the PNG files are made.</strong> The script calls <code>rsvg-convert</code> when it is installed. Without it, only the SVG files are written.</li>
+</ul>
+
+<h2>What it means</h2>
+<ul>
+  <li><strong>Every image in a post can be rebuilt.</strong> Each post carries the script that made its images.</li>
+  <li><strong>The journal stays the record.</strong> Posts draw on it and do not replace it.</li>
+</ul>
+
+<h2>Not done</h2>
+<ul>
+  <li><strong>The post is a draft.</strong> It is not published, and the owner has not reviewed the copy in the repo.</li>
+  <li><strong>The post has no <code>sources.md</code> yet.</strong> Its two paper links are at the end of the text.</li>
+  <li><strong>The strip image is not placed in the post.</strong> The other four images are.</li>
+  <li><strong>The edits illustration shows removal only.</strong> PLLM also adds steps, and the image does not show that.</li>
+  <li><strong>The claims about the papers are not checked.</strong> The draft says PLAD's method was about 32 times faster than reinforcement learning on one test, and it describes both papers' conclusions.</li>
+  <li><strong>The two papers have not been read in full.</strong> The notes on them come from abstracts and search results.</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+  <li>Is this layout the one the owner wants?</li>
+  <li>Are these the right traces for the first post's renders?</li>
+</ul>
+
+<h2>Next step, proposed</h2>
+<p>Read both papers in full, check the post's claims against them, and write
+<code>sources.md</code>. This does not start until the
+owner agrees.</p>
+</body>
+</html>
