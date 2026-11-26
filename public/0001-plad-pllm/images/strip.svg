@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1256 302" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<rect width="1256" height="302" rx="12" fill="#f4f5f7"/>
+<svg x="12" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="263.7,228.2 263.7,119.3 194.8,160.9 194.8,269.9" fill="rgb(166,174,186)"/>
+<polygon points="194.8,147.3 263.7,105.7 165.2,76.5 96.3,118.1" fill="rgb(199,209,224)"/>
+<polygon points="194.8,269.9 194.8,160.9 96.3,131.8 96.3,240.7" fill="rgb(171,180,192)"/>
+<polygon points="263.7,119.3 263.7,105.7 194.8,147.3 194.8,160.9" fill="rgb(166,174,186)"/>
+<polygon points="194.8,160.9 194.8,147.3 96.3,118.1 96.3,131.8" fill="rgb(171,180,192)"/>
+</svg>
+
+<text x="132.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">1 move</text>
+<svg x="260" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="263.7,228.2 263.7,119.3 254.0,140.6 254.0,218.7" fill="rgb(166,174,186)"/>
+<polygon points="194.8,269.9 263.7,228.2 254.0,218.7 204.5,248.6" fill="rgb(166,174,186)"/>
+<polygon points="254.0,218.7 254.0,140.6 204.5,170.4 204.5,248.6" fill="rgb(166,174,186)"/>
+<polygon points="194.8,269.9 194.8,160.9 96.3,131.8 96.3,240.7" fill="rgb(171,180,192)"/>
+<polygon points="194.8,106.4 263.7,64.8 165.2,35.7 96.3,77.3" fill="rgb(199,209,224)"/>
+<polygon points="263.7,119.3 194.8,160.9 204.5,170.4 254.0,140.6" fill="rgb(166,174,186)"/>
+<polygon points="263.7,119.3 263.7,64.8 194.8,106.4 194.8,160.9" fill="rgb(166,174,186)"/>
+<polygon points="194.8,160.9 194.8,269.9 204.5,248.6 204.5,170.4" fill="rgb(166,174,186)"/>
+<polygon points="194.8,160.9 194.8,106.4 96.3,77.3 96.3,131.8" fill="rgb(171,180,192)"/>
+</svg>
+
+<text x="380.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">2 moves</text>
+<svg x="508" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="263.7,228.2 263.7,119.3 194.8,160.9 194.8,269.9" fill="rgb(166,174,186)"/>
+<polygon points="194.8,133.7 263.7,92.1 165.2,62.9 96.3,104.5" fill="rgb(199,209,224)"/>
+<polygon points="194.8,269.9 194.8,160.9 96.3,131.8 96.3,240.7" fill="rgb(171,180,192)"/>
+<polygon points="263.7,119.3 263.7,92.1 194.8,133.7 194.8,160.9" fill="rgb(166,174,186)"/>
+<polygon points="96.3,104.5 87.7,109.7 186.1,138.9 194.8,133.7" fill="rgb(199,209,224)"/>
+<polygon points="87.7,109.7 70.4,120.1 168.9,149.3 186.1,138.9" fill="rgb(199,209,224)"/>
+<polygon points="168.9,176.5 168.9,149.3 70.4,120.1 70.4,147.4" fill="rgb(171,180,192)"/>
+<polygon points="194.8,133.7 186.1,138.9 186.1,166.1 194.8,160.9" fill="rgb(166,174,186)"/>
+<polygon points="186.1,138.9 168.9,149.3 168.9,176.5 186.1,166.1" fill="rgb(166,174,186)"/>
+</svg>
+
+<text x="628.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">3 moves</text>
+<svg x="756" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="186.1,193.3 263.7,146.5 165.2,90.1 87.7,137.0" fill="rgb(201,211,226)"/>
+<polygon points="186.1,275.1 186.1,193.3 87.7,137.0 87.7,245.9" fill="rgb(171,180,192)"/>
+<polygon points="312.9,242.8 312.9,161.1 235.4,207.9 235.4,289.6" fill="rgb(166,174,186)"/>
+<polygon points="186.1,138.9 235.4,153.4 312.9,106.6 263.7,92.1" fill="rgb(199,209,224)"/>
+<polygon points="312.9,161.1 312.9,106.6 235.4,153.4 235.4,207.9" fill="rgb(166,174,186)"/>
+<polygon points="186.1,275.1 235.4,289.6 235.4,207.9 186.1,193.3" fill="rgb(171,180,192)"/>
+<polygon points="235.4,207.9 235.4,153.4 186.1,138.9 186.1,193.3" fill="rgb(171,180,192)"/>
+</svg>
+
+<text x="876.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">4 moves</text>
+<svg x="1004" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="312.9,242.8 312.9,133.9 303.2,155.2 303.2,233.3" fill="rgb(166,174,186)"/>
+<polygon points="194.8,160.9 263.7,119.3 165.2,90.1 96.3,131.8" fill="rgb(199,209,224)"/>
+<polygon points="87.7,137.0 87.7,245.9 115.5,223.3 115.5,176.0" fill="rgb(171,180,192)"/>
+<polygon points="87.7,245.9 186.1,275.1 158.3,236.0 115.5,223.3" fill="rgb(171,180,192)"/>
+<polygon points="244.0,284.4 312.9,242.8 303.2,233.3 253.7,263.1" fill="rgb(166,174,186)"/>
+<polygon points="158.3,236.0 158.3,188.7 115.5,176.0 115.5,223.3" fill="rgb(171,180,192)"/>
+<polygon points="303.2,233.3 303.2,155.2 253.7,185.0 253.7,263.1" fill="rgb(166,174,186)"/>
+<polygon points="194.8,160.9 244.0,175.5 312.9,133.9 263.7,119.3" fill="rgb(199,209,224)"/>
+<polygon points="186.1,166.1 87.7,137.0 115.5,176.0 158.3,188.7" fill="rgb(171,180,192)"/>
+<polygon points="96.3,131.8 87.7,137.0 186.1,166.1 194.8,160.9" fill="rgb(199,209,224)"/>
+<polygon points="194.8,160.9 186.1,166.1 186.1,275.1 194.8,269.9" fill="rgb(166,174,186)"/>
+<polygon points="312.9,133.9 244.0,175.5 253.7,185.0 303.2,155.2" fill="rgb(166,174,186)"/>
+<polygon points="194.8,269.9 244.0,284.4 244.0,175.5 194.8,160.9" fill="rgb(171,180,192)"/>
+<polygon points="244.0,175.5 244.0,284.4 253.7,263.1 253.7,185.0" fill="rgb(166,174,186)"/>
+<polygon points="186.1,166.1 151.7,186.9 151.7,295.9 186.1,275.1" fill="rgb(166,174,186)"/>
+<polygon points="151.7,295.9 151.7,186.9 123.8,209.5 123.8,256.8" fill="rgb(171,180,192)"/>
+</svg>
+
+<text x="1124.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">5 moves</text>
+</svg>

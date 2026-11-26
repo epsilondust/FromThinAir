@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 916 364" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<rect width="916" height="364" rx="12" fill="#f4f5f7"/>
+<svg x="12" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="88.7,127.4 88.7,246.2 119.1,221.6 119.1,170.0" fill="rgb(140,147,158)"/>
+<polygon points="271.3,113.8 163.9,82.0 88.7,127.4 196.1,159.2" fill="rgb(199,209,224)"/>
+<polygon points="88.7,246.2 196.1,278.0 165.7,235.4 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="284.8,236.6 284.8,117.7 209.5,163.1 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="165.7,235.4 165.7,183.8 119.1,170.0 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 209.5,163.1 284.8,117.7 271.3,113.8" fill="rgb(199,209,224)"/>
+<polygon points="196.1,159.2 88.7,127.4 119.1,170.0 165.7,183.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,278.0 196.1,159.2 165.7,183.8 165.7,235.4" fill="rgb(140,147,158)"/>
+<polygon points="209.5,163.1 200.1,168.8 200.1,287.7 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="186.7,283.7 200.1,287.7 200.1,168.8 186.7,164.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 186.7,164.8 200.1,168.8 209.5,163.1" fill="rgb(199,209,224)"/>
+</svg>
+
+<text x="132.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">the target</text>
+<svg x="260" y="12" width="240" height="240" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="88.7,127.4 88.7,246.2 119.1,221.6 119.1,170.0" fill="rgb(140,147,158)"/>
+<polygon points="271.3,113.8 163.9,82.0 88.7,127.4 196.1,159.2" fill="rgb(199,209,224)"/>
+<polygon points="88.7,246.2 196.1,278.0 165.7,235.4 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="284.8,236.6 284.8,117.7 209.5,163.1 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="165.7,235.4 165.7,183.8 119.1,170.0 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 209.5,163.1 284.8,117.7 271.3,113.8" fill="rgb(199,209,224)"/>
+<polygon points="196.1,159.2 88.7,127.4 119.1,170.0 165.7,183.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,278.0 196.1,159.2 165.7,183.8 165.7,235.4" fill="rgb(140,147,158)"/>
+<polygon points="209.5,163.1 171.9,185.8 171.9,304.7 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="158.5,300.7 171.9,304.7 171.9,185.8 158.5,181.9" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 158.5,181.9 171.9,185.8 209.5,163.1" fill="rgb(199,209,224)"/>
+</svg>
+
+<text x="380.0" y="280" text-anchor="middle" font-size="18" font-weight="600" fill="#1b1e24">what the guessed moves built</text>
+<text x="24" y="310" font-size="14" font-weight="400" fill="#5c6470">guessed moves: extrude 2 by 0.25, inset 2 by 0.4, extrude 9 by 1</text>
+<text x="516" y="38" font-size="18" font-weight="600" fill="#1b1e24">self-training keeps</text>
+<svg x="516" y="48" width="110" height="110" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="88.7,127.4 88.7,246.2 119.1,221.6 119.1,170.0" fill="rgb(140,147,158)"/>
+<polygon points="271.3,113.8 163.9,82.0 88.7,127.4 196.1,159.2" fill="rgb(199,209,224)"/>
+<polygon points="88.7,246.2 196.1,278.0 165.7,235.4 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="284.8,236.6 284.8,117.7 209.5,163.1 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="165.7,235.4 165.7,183.8 119.1,170.0 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 209.5,163.1 284.8,117.7 271.3,113.8" fill="rgb(199,209,224)"/>
+<polygon points="196.1,159.2 88.7,127.4 119.1,170.0 165.7,183.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,278.0 196.1,159.2 165.7,183.8 165.7,235.4" fill="rgb(140,147,158)"/>
+<polygon points="209.5,163.1 200.1,168.8 200.1,287.7 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="186.7,283.7 200.1,287.7 200.1,168.8 186.7,164.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 186.7,164.8 200.1,168.8 209.5,163.1" fill="rgb(199,209,224)"/>
+</svg>
+
+<text x="640" y="84" font-size="16" font-weight="400" fill="#5c6470">the guessed moves</text>
+<text x="640" y="108" font-size="16" font-weight="400" fill="#5c6470">paired with the target</text>
+<text x="640" y="138" font-size="16" font-weight="600" fill="#1b1e24">the label can be wrong</text>
+<text x="516" y="198" font-size="18" font-weight="600" fill="#1b1e24">LEST keeps</text>
+<svg x="516" y="208" width="110" height="110" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" stroke="#1b1e24" stroke-width="1" stroke-linejoin="round">
+<rect width="360" height="360" fill="#f4f5f7" stroke="none"/>
+<polygon points="88.7,127.4 88.7,246.2 119.1,221.6 119.1,170.0" fill="rgb(140,147,158)"/>
+<polygon points="271.3,113.8 163.9,82.0 88.7,127.4 196.1,159.2" fill="rgb(199,209,224)"/>
+<polygon points="88.7,246.2 196.1,278.0 165.7,235.4 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="284.8,236.6 284.8,117.7 209.5,163.1 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="165.7,235.4 165.7,183.8 119.1,170.0 119.1,221.6" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 209.5,163.1 284.8,117.7 271.3,113.8" fill="rgb(199,209,224)"/>
+<polygon points="196.1,159.2 88.7,127.4 119.1,170.0 165.7,183.8" fill="rgb(140,147,158)"/>
+<polygon points="196.1,278.0 196.1,159.2 165.7,183.8 165.7,235.4" fill="rgb(140,147,158)"/>
+<polygon points="209.5,163.1 171.9,185.8 171.9,304.7 209.5,282.0" fill="rgb(171,180,192)"/>
+<polygon points="158.5,300.7 171.9,304.7 171.9,185.8 158.5,181.9" fill="rgb(140,147,158)"/>
+<polygon points="196.1,159.2 158.5,181.9 171.9,185.8 209.5,163.1" fill="rgb(199,209,224)"/>
+</svg>
+
+<text x="640" y="244" font-size="16" font-weight="400" fill="#5c6470">the guessed moves</text>
+<text x="640" y="268" font-size="16" font-weight="400" fill="#5c6470">paired with the shape they built</text>
+<text x="640" y="298" font-size="16" font-weight="600" fill="#1b1e24">the label is always right</text>
+<text x="458.0" y="346" text-anchor="middle" font-size="15" font-weight="400" fill="#5c6470">Illustration, not a result. Both shapes are real traces. The guess is staged.</text>
+</svg>
