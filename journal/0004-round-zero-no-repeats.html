@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0004: Round zero with the repeats removed</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · previous: <a href="0003-round-zero.html">0003</a> · next: <a href="0005-evals.html">0005</a></nav>
+<h1>0004: Round zero with the repeats removed</h1>
+<p class="meta">2026-11-25 · <span class="status">Done, not reviewed</span></p>
+
+<p>The owner approved this step before it started.</p>
+
+<h2>Goal of this step</h2>
+<p>Rebuild round zero so that every trace ends in a different shape. The first run, in
+<a href="0003-round-zero.html">entry 0003</a>, had 10,000 traces but only 7,518 different final
+meshes.</p>
+
+<h2>Decision</h2>
+<p><strong>Decided by the owner on 2026-11-25: remove the repeats.</strong></p>
+
+<h2>What was done</h2>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>executor.py</code></td><td>It now keeps a trace only when its final mesh is new. It keeps generating until it has the number of traces asked for. It prints how many repeats it skipped.</td></tr>
+  <tr><td><code>data/round0.npz</code></td><td>Replaced. It now holds 10,000 traces with 10,000 different final meshes. It is 1.08 MB.</td></tr>
+</table>
+<p>The rule for a repeat is the final mesh, not the move list. Two different move lists can end in
+the same mesh, and both would leak into a test. Removing by final mesh removes both kinds.</p>
+<p>The random seed is still 0, so the run can be repeated exactly.</p>
+
+<h2>Timing</h2>
+<p>The machine is an Apple M2 Max with 12 cores. The run used one process.</p>
+<table>
+  <tr><th>Phase</th><th>What it does</th><th>This run</th><th>Entry 0003</th></tr>
+  <tr><td>Generate</td><td>Pick moves and run them until 10,000 new shapes exist</td><td>4.05 s</td><td>2.81 s</td></tr>
+  <tr><td>Save</td><td>Write the shard to disk</td><td>0.48 s</td><td>0.42 s</td></tr>
+  <tr><td>Load</td><td>Read the shard back from disk</td><td>0.75 s</td><td>0.62 s</td></tr>
+  <tr><td>Replay</td><td>Run every stored move list again and compare</td><td>1.62 s</td><td>1.42 s</td></tr>
+  <tr><td>Whole command</td><td>All of the above, plus starting Blender</td><td>8.56 s</td><td>6.34 s</td></tr>
+</table>
+<ul>
+  <li><strong>Why generation is slower.</strong> It made 13,596 traces to keep 10,000. The other 3,596 were repeats and were thrown away.</li>
+  <li><strong>Rate.</strong> About 2,470 kept traces per second, or about 3,360 generated traces per second.</li>
+</ul>
+
+<h2>What we saw</h2>
+<p>These are the final shapes of the first 24 traces. They are not hand-picked.</p>
+<div class="frames grid">
+  <figure><img src="images/0004/shape-0.svg" alt="Sample shape 0"></figure>
+  <figure><img src="images/0004/shape-1.svg" alt="Sample shape 1"></figure>
+  <figure><img src="images/0004/shape-2.svg" alt="Sample shape 2"></figure>
+  <figure><img src="images/0004/shape-3.svg" alt="Sample shape 3"></figure>
+  <figure><img src="images/0004/shape-4.svg" alt="Sample shape 4"></figure>
+  <figure><img src="images/0004/shape-5.svg" alt="Sample shape 5"></figure>
+  <figure><img src="images/0004/shape-6.svg" alt="Sample shape 6"></figure>
+  <figure><img src="images/0004/shape-7.svg" alt="Sample shape 7"></figure>
+  <figure><img src="images/0004/shape-8.svg" alt="Sample shape 8"></figure>
+  <figure><img src="images/0004/shape-9.svg" alt="Sample shape 9"></figure>
+  <figure><img src="images/0004/shape-10.svg" alt="Sample shape 10"></figure>
+  <figure><img src="images/0004/shape-11.svg" alt="Sample shape 11"></figure>
+  <figure><img src="images/0004/shape-12.svg" alt="Sample shape 12"></figure>
+  <figure><img src="images/0004/shape-13.svg" alt="Sample shape 13"></figure>
+  <figure><img src="images/0004/shape-14.svg" alt="Sample shape 14"></figure>
+  <figure><img src="images/0004/shape-15.svg" alt="Sample shape 15"></figure>
+  <figure><img src="images/0004/shape-16.svg" alt="Sample shape 16"></figure>
+  <figure><img src="images/0004/shape-17.svg" alt="Sample shape 17"></figure>
+  <figure><img src="images/0004/shape-18.svg" alt="Sample shape 18"></figure>
+  <figure><img src="images/0004/shape-19.svg" alt="Sample shape 19"></figure>
+  <figure><img src="images/0004/shape-20.svg" alt="Sample shape 20"></figure>
+  <figure><img src="images/0004/shape-21.svg" alt="Sample shape 21"></figure>
+  <figure><img src="images/0004/shape-22.svg" alt="Sample shape 22"></figure>
+  <figure><img src="images/0004/shape-23.svg" alt="Sample shape 23"></figure>
+</div>
+
+<h3>What the dataset holds now</h3>
+<table>
+  <tr><th>Measure</th><th>This run</th><th>Entry 0003</th></tr>
+  <tr><td>Traces</td><td>10,000</td><td>10,000</td></tr>
+  <tr><td>Different final meshes</td><td>10,000</td><td>7,518</td></tr>
+  <tr><td>Different move lists</td><td>10,000</td><td>7,628</td></tr>
+  <tr><td>Moves in total</td><td>36,303</td><td>30,254</td></tr>
+  <tr><td>Meshes stored</td><td>46,303</td><td>40,254</td></tr>
+  <tr><td>Faces in a final shape, mean</td><td>15.8</td><td>14.1</td></tr>
+  <tr><td>File size</td><td>1.08 MB</td><td>885 KB</td></tr>
+</table>
+
+<table>
+  <tr><th>Moves per trace</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+  <tr><td>Traces, this run</td><td>54</td><td>1,801</td><td>2,748</td><td>2,582</td><td>2,815</td></tr>
+  <tr><td>Traces, entry 0003</td><td>1,958</td><td>1,968</td><td>2,030</td><td>1,950</td><td>2,094</td></tr>
+</table>
+
+<table>
+  <tr><th>Move type</th><th>extrude</th><th>inset</th><th>slide</th></tr>
+  <tr><td>Times used</td><td>12,340</td><td>12,166</td><td>11,797</td></tr>
+</table>
+
+<h2>The checks</h2>
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>Read all 10,000 traces back from the shard and run their moves again</td><td>Every one rebuilt its stored meshes exactly</td></tr>
+  <tr><td>Count the different final meshes</td><td>10,000 of 10,000</td></tr>
+  <tr><td>Run the whole generation a second time and compare the files</td><td>Byte-identical, same SHA-1</td></tr>
+</table>
+
+<h2>What it means</h2>
+<ul>
+  <li><strong>Every example is now a different shape.</strong> A test set split from this file cannot share a mesh with the training set.</li>
+  <li><strong>The dataset shifted toward longer traces.</strong> All 54 possible one-move traces are in it, and no more exist. Traces of 3 to 5 moves fill the rest.</li>
+  <li><strong>There is more to learn from.</strong> The file has 36,303 moves, up from 30,254.</li>
+</ul>
+
+<h2>Not done</h2>
+<ul>
+  <li><strong>Only exact repeats are removed.</strong> The same shape built in a different order has a different vertex order, and the rule misses it. How often that happens is not measured.</li>
+  <li><strong>A shape can still be the start of another.</strong> A two-move shape may also appear as a step inside a longer trace. Those shared steps are not removed.</li>
+  <li><strong>No quality check.</strong> Shapes that cut through themselves are not flagged.</li>
+  <li><strong>The sample files are unchanged.</strong> <code>traces.npz</code> and <code>traces.json</code> are still the 20 samples from entry 0002.</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+  <li>Should the same shape in a different vertex order count as a repeat? Catching it needs a way to compare shapes, which the next step provides.</li>
+  <li>Should the dataset file be kept in git? It is 1.08 MB.</li>
+</ul>
+
+<h2>Next step, proposed</h2>
+<p>Write the shape check. It scores how close two shapes are by sampling points on both surfaces
+and measuring the average gap. It is needed before any model can be scored, and it can also
+answer the first open question above. This does not start until the owner agrees.</p>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0005: The first evals: mesh checks and shape distance</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · previous: <a href="0004-round-zero-no-repeats.html">0004</a></nav>
+<h1>0005: The first evals: mesh checks and shape distance</h1>
+<p class="meta">2026-11-25 · <span class="status">Done, not reviewed</span></p>
+
+<p>The owner approved this step before it started.</p>
+
+<h2>Goal of this step</h2>
+<p>Write the first evals. The owner asked for evals that do two jobs. They must tell shapes
+apart. They must also show that a shape is a solid that a person might want. The owner named
+self-intersection as one to include.</p>
+
+<h2>What was done</h2>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>evals.py</code></td><td>New. It holds five checks on one mesh, one measure of the gap between two meshes, and a key that spots the same shape in a different order. It needs only NumPy.</td></tr>
+  <tr><td><code>data/round0-evals.npz</code></td><td>New. The result of every check for every shape in round zero.</td></tr>
+  <tr><td><code>data/round0-surface.npy</code></td><td>New. A group number for every shape. Shapes with the same surface share a number.</td></tr>
+</table>
+
+<h3>The checks on one mesh</h3>
+<table>
+  <tr><th>Check</th><th>The question it answers</th><th>How it works</th></tr>
+  <tr><td>Closed</td><td>Is it a sealed solid, with no holes and no inside-out faces?</td><td>Every edge must be shared by exactly two faces that face opposite ways.</td></tr>
+  <tr><td>Volume</td><td>How much space does it enclose?</td><td>It adds up the space under every face. A negative result means the mesh is inside out.</td></tr>
+  <tr><td>Bend</td><td>Are the faces flat?</td><td>For each face, it measures how far the corners sit from the best flat plane, as a share of the face's size. The flag is set above 0.01.</td></tr>
+  <tr><td>Thinness</td><td>Are there sliver faces?</td><td>For each face, it divides the shortest edge by the longest. The flag is set below 0.05.</td></tr>
+  <tr><td>Cuts itself</td><td>Does one part of the mesh pass through another?</td><td>It tests whether an edge of one face passes through the inside of a face that is not its neighbor.</td></tr>
+  <tr><td>Touches itself</td><td>Do parts rest against each other or overlap?</td><td>The same test, but contact counts too: a corner on another face, two faces lying flat together, or a face folded over in its own plane.</td></tr>
+</table>
+<p>A shape is called <strong>clean</strong> when it passes all of them. The two limits, 0.01 and
+0.05, are first guesses.</p>
+
+<h3>The measure on two meshes</h3>
+<p><strong>Shape distance</strong> is the average gap between two surfaces. It picks 2,000 points on
+each surface and measures how far each one is from the other surface. It is 0 when the surfaces
+are the same.</p>
+
+<h2>Timing</h2>
+<p>The machine is an Apple M2 Max with 12 cores. Every run used one process.</p>
+<table>
+  <tr><th>Run</th><th>Time</th></tr>
+  <tr><td>All checks on the 10,000 final shapes of round zero</td><td>13.26 s, which is 1.33 ms per shape</td></tr>
+  <tr><td>One shape distance with 2,000 points per surface</td><td>37 ms</td></tr>
+  <tr><td>19,900 shape distances between 200 shapes, with 500 points per surface</td><td>148 s, which is 7.4 ms each</td></tr>
+  <tr><td>Blender's own overlap test on the 10,000 shapes, used as a cross-check</td><td>0.32 s</td></tr>
+  <tr><td>Grouping all 10,000 shapes by surface</td><td>19.4 s</td></tr>
+</table>
+<p>Grouping by surface is fast because it first sorts shapes by volume, surface area and bounding
+box. Only shapes that match on all three are compared with shape distance. That took 4,285
+comparisons, not 50 million.</p>
+<p>Shape distance is the slow one. Comparing every pair in 10,000 shapes would take about four
+days at this speed, so it cannot be used that way.</p>
+
+<h2>What we saw</h2>
+
+<h3>Results on round zero</h3>
+<table>
+  <tr><th>Check</th><th>Shapes, of 10,000</th></tr>
+  <tr><td>Closed</td><td>10,000</td></tr>
+  <tr><td>Positive volume</td><td>10,000</td></tr>
+  <tr><td>Cuts itself</td><td>148</td></tr>
+  <tr><td>Cuts or touches itself</td><td>924</td></tr>
+  <tr><td>Has a bent face</td><td>1,962</td></tr>
+  <tr><td>Has a thin face</td><td>1,294</td></tr>
+  <tr><td>Has an edge of no length</td><td>113</td></tr>
+  <tr><td><strong>Clean on every check</strong></td><td><strong>6,533</strong></td></tr>
+</table>
+
+<table>
+  <tr><th>Moves per trace</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+  <tr><td>Traces</td><td>54</td><td>1,801</td><td>2,748</td><td>2,582</td><td>2,815</td></tr>
+  <tr><td>Clean</td><td>54</td><td>1,632</td><td>2,081</td><td>1,552</td><td>1,214</td></tr>
+  <tr><td>Share clean</td><td>100%</td><td>91%</td><td>76%</td><td>60%</td><td>43%</td></tr>
+</table>
+<p>The more random moves a trace has, the less likely its shape is clean.</p>
+
+<h3>What each flag looks like</h3>
+<p>Each row shows the first six shapes with that flag. They are not hand-picked.</p>
+<p><strong>Clean.</strong></p>
+<div class="frames grid">
+  <figure><img src="images/0005/clean/shape-0.svg" alt="Clean example 0"></figure>
+  <figure><img src="images/0005/clean/shape-1.svg" alt="Clean example 1"></figure>
+  <figure><img src="images/0005/clean/shape-2.svg" alt="Clean example 2"></figure>
+  <figure><img src="images/0005/clean/shape-3.svg" alt="Clean example 3"></figure>
+  <figure><img src="images/0005/clean/shape-4.svg" alt="Clean example 4"></figure>
+  <figure><img src="images/0005/clean/shape-5.svg" alt="Clean example 5"></figure>
+</div>
+<p><strong>Cuts itself.</strong></p>
+<div class="frames grid">
+  <figure><img src="images/0005/cut/shape-0.svg" alt="Cuts itself example 0"></figure>
+  <figure><img src="images/0005/cut/shape-1.svg" alt="Cuts itself example 1"></figure>
+  <figure><img src="images/0005/cut/shape-2.svg" alt="Cuts itself example 2"></figure>
+  <figure><img src="images/0005/cut/shape-3.svg" alt="Cuts itself example 3"></figure>
+  <figure><img src="images/0005/cut/shape-4.svg" alt="Cuts itself example 4"></figure>
+  <figure><img src="images/0005/cut/shape-5.svg" alt="Cuts itself example 5"></figure>
+</div>
+<p><strong>Touches itself, without cutting.</strong></p>
+<div class="frames grid">
+  <figure><img src="images/0005/touch/shape-0.svg" alt="Touches itself example 0"></figure>
+  <figure><img src="images/0005/touch/shape-1.svg" alt="Touches itself example 1"></figure>
+  <figure><img src="images/0005/touch/shape-2.svg" alt="Touches itself example 2"></figure>
+  <figure><img src="images/0005/touch/shape-3.svg" alt="Touches itself example 3"></figure>
+  <figure><img src="images/0005/touch/shape-4.svg" alt="Touches itself example 4"></figure>
+  <figure><img src="images/0005/touch/shape-5.svg" alt="Touches itself example 5"></figure>
+</div>
+<p><strong>Bent face, with no contact.</strong></p>
+<div class="frames grid">
+  <figure><img src="images/0005/bent/shape-0.svg" alt="Bent face example 0"></figure>
+  <figure><img src="images/0005/bent/shape-1.svg" alt="Bent face example 1"></figure>
+  <figure><img src="images/0005/bent/shape-2.svg" alt="Bent face example 2"></figure>
+  <figure><img src="images/0005/bent/shape-3.svg" alt="Bent face example 3"></figure>
+  <figure><img src="images/0005/bent/shape-4.svg" alt="Bent face example 4"></figure>
+  <figure><img src="images/0005/bent/shape-5.svg" alt="Bent face example 5"></figure>
+</div>
+<p><strong>Thin face, with no contact and no bend.</strong></p>
+<div class="frames grid">
+  <figure><img src="images/0005/thin/shape-0.svg" alt="Thin face example 0"></figure>
+  <figure><img src="images/0005/thin/shape-1.svg" alt="Thin face example 1"></figure>
+  <figure><img src="images/0005/thin/shape-2.svg" alt="Thin face example 2"></figure>
+  <figure><img src="images/0005/thin/shape-3.svg" alt="Thin face example 3"></figure>
+  <figure><img src="images/0005/thin/shape-4.svg" alt="Thin face example 4"></figure>
+  <figure><img src="images/0005/thin/shape-5.svg" alt="Thin face example 5"></figure>
+</div>
+
+<h3>Shape distance along one build</h3>
+<p>This is sample trace 3 from <a href="0001-executor-and-player.html">entry 0001</a>. Each number is
+the distance from that step to the final shape.</p>
+<table>
+  <tr><th>Step</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+  <tr><td>Move that led here</td><td>start</td><td>inset</td><td>extrude</td><td>extrude</td><td>slide</td><td>inset</td></tr>
+  <tr><td>Distance to the final shape</td><td>0.0882</td><td>0.0883</td><td>0.0812</td><td>0.0770</td><td>0.0000</td><td>0.0000</td></tr>
+</table>
+<p>The distance falls as the build goes on, which is what a useful measure should do. Changing
+which points are sampled moves the result by about 0.004.</p>
+
+<h2>Three findings</h2>
+
+<h3>1. An inset is invisible to shape distance</h3>
+<p>Steps 4 and 5 in the table above are both at distance 0. The last move was an inset. An inset
+draws new edges on a face but leaves the surface exactly where it was. So shape distance cannot
+see it.</p>
+<p>This matters for scoring. A model that skipped every inset would still score a perfect rebuild.
+Shape distance says whether the surface is right. It says nothing about whether the faces are
+right.</p>
+
+<h3>2. Round zero holds 7,188 surfaces, not 10,000</h3>
+<table>
+  <tr><th>Measure</th><th>Count</th></tr>
+  <tr><td>Traces</td><td>10,000</td></tr>
+  <tr><td>Different meshes, exact</td><td>10,000</td></tr>
+  <tr><td>Different meshes when vertex and face order is ignored</td><td>9,884</td></tr>
+  <tr><td>Different surfaces</td><td>7,188</td></tr>
+  <tr><td>Different surfaces among the clean shapes</td><td>4,289, among 6,533 clean shapes</td></tr>
+</table>
+<p>More than a quarter of the meshes share their surface with another mesh. The largest group has 261 meshes that are all the plain cube. Their traces used only insets, which change the faces and leave the surface alone. Of the 7,188 surfaces, 6,451 appear only once.</p>
+
+<h3>3. Three tests for self-intersection give three answers</h3>
+<table>
+  <tr><th>Test</th><th>Shapes flagged</th><th>What it counts</th></tr>
+  <tr><td>Cuts itself</td><td>148</td><td>Only one part passing through another</td></tr>
+  <tr><td>Blender's overlap test</td><td>505</td><td>Cuts, plus some kinds of contact</td></tr>
+  <tr><td>Cuts or touches itself</td><td>924</td><td>Cuts, plus every kind of contact and in-plane overlap</td></tr>
+</table>
+<p>The three nest inside each other. Blender flags 146 of the 148 cuts. The widest test flags
+every shape that Blender flags. So the tests agree on what is bad, and differ only on how strict
+to be. "Clean" uses the widest one.</p>
+
+<h2>Problems found while writing the evals</h2>
+<p>Each check runs on shapes with a known answer before it runs on the dataset. Three mistakes
+were found and fixed. The known cases caught the first two. Measuring a shape against itself
+caught the third.</p>
+<ul>
+  <li><strong>A cut on a diagonal was missed.</strong> Each face is split into two triangles for testing. A cut that landed exactly on the splitting line was ignored. The known case of two overlapping cubes caught it.</li>
+  <li><strong>The first fix counted contact as a cut.</strong> Two cubes resting against each other were reported as cutting. The test now treats the real border of a face and the splitting line inside it differently.</li>
+  <li><strong>The first shape distance was too blurry.</strong> It measured between sampled points on both surfaces. That gave 0.06 between a shape and itself, which is as large as the differences it needed to show. The current version measures to the surface itself and gives exactly 0.</li>
+</ul>
+
+<h2>What it means</h2>
+<ul>
+  <li><strong>About two thirds of round zero is clean.</strong> The rest has a flaw that a person would not want.</li>
+  <li><strong>Every shape is a sealed solid.</strong> The three moves never open a hole or turn the mesh inside out.</li>
+  <li><strong>Scoring needs two measures, not one.</strong> Shape distance covers the surface. A second measure must cover the faces, or insets go unscored.</li>
+  <li><strong>The test split must be made by surface.</strong> Two meshes with the same surface are the same target as far as shape distance can tell.</li>
+</ul>
+
+<h2>Not done</h2>
+<ul>
+  <li><strong>Folds between neighbors are missed.</strong> The self-intersection test skips faces that share a corner.</li>
+  <li><strong>The limits are guesses.</strong> Nobody has checked that 0.01 for bend and 0.05 for thinness match what a person would call bad.</li>
+  <li><strong>Only final shapes were checked.</strong> The steps inside each trace were not.</li>
+  <li><strong>Nothing measures whether the faces match.</strong> That is the missing second measure from finding 1.</li>
+  <li><strong>Nothing measures whether a shape looks designed.</strong> A clean shape can still be a lump. This is the hardest part of what the owner asked for, and it is not started.</li>
+  <li><strong>The dataset is unchanged.</strong> Flawed shapes are flagged, not removed.</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+  <li>Should flawed shapes be removed from the dataset, or kept and flagged?</li>
+  <li>Should "clean" use the widest contact test, or only real cuts?</li>
+  <li>What should the second measure be, the one that scores faces and not only the surface?</li>
+  <li>What would show that a shape is one a person might want, beyond being clean?</li>
+</ul>
+
+<h2>Next step, proposed</h2>
+<p>Decide what happens to flawed shapes, then design the measure that scores faces. This does not
+start until the owner agrees.</p>
+</body>
+</html>

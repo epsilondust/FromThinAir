@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0002: The executor writes shard files</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · previous: <a href="0001-executor-and-player.html">0001</a> · next: <a href="0003-round-zero.html">0003</a></nav>
+<h1>0002: The executor writes shard files</h1>
+<p class="meta">2026-11-25 · <span class="status">Done, not reviewed</span></p>
+
+<p>The owner approved this step before it started.</p>
+
+<h2>Goal of this step</h2>
+<p>Make the code match the decision in <a href="0000-what-we-are-doing.html">entry 0000</a>: the
+dataset is stored as NumPy shard files. Before this step, the executor wrote JSON.</p>
+
+<h2>What was done</h2>
+<table>
+  <tr><th>File</th><th>Change</th></tr>
+  <tr><td><code>shard.py</code></td><td>New. It writes a list of traces to a shard and reads one back. It can also export traces to JSON.</td></tr>
+  <tr><td><code>executor.py</code></td><td>It now writes a shard. It also stores vertex positions with no rounding.</td></tr>
+  <tr><td><code>traces.npz</code></td><td>New. The 20 sample traces as a shard.</td></tr>
+  <tr><td><code>traces.json</code></td><td>Now an export made from the shard. The browser player and the frame images still read JSON.</td></tr>
+  <tr><td><code>.gitignore</code></td><td>New. It keeps Python's cache folder out of git.</td></tr>
+</table>
+
+<p>How the pieces connect now:</p>
+<ol>
+  <li>The executor runs moves and writes a shard.</li>
+  <li>The shard is the stored dataset. Training will read it directly.</li>
+  <li>For viewing, <code>shard.py</code> exports a few traces to JSON.</li>
+  <li>The player and <code>render.py</code> read that JSON.</li>
+</ol>
+
+<h2>Two choices made inside the format</h2>
+<ul>
+  <li><strong>Vertex positions are stored as 32-bit numbers.</strong> Blender holds positions at that size, so nothing is lost.</li>
+  <li><strong>Move amounts are stored as 64-bit numbers.</strong> A rounded amount could rebuild a slightly different mesh, and then the stored example could not be verified.</li>
+</ul>
+
+<h2>What we saw</h2>
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>Read 2,000 traces back from a shard, run their moves again, and compare</td><td>All 2,000 rebuilt the stored mesh exactly</td></tr>
+  <tr><td>Write the same shard in two separate Blender runs</td><td>Byte-identical files, same SHA-1</td></tr>
+  <tr><td>Export the new shard to JSON and compare with the JSON from entry 0001</td><td>Identical. All 20 traces match.</td></tr>
+  <tr><td>Size of the 20 sample traces</td><td>4.6 KB as a shard, against 38 KB as JSON</td></tr>
+  <tr><td>Size of 2,000 traces</td><td>179 KB, which is about 90 bytes per trace</td></tr>
+</table>
+
+<p>The replay check is stronger than the one in entry 0001. That one compared two runs in memory.
+This one reads the file from disk first, so it tests the file format as well as the executor.</p>
+
+<h2>What it means</h2>
+<ul>
+  <li><strong>The stored format is proven for the plain case.</strong> Meshes and moves survive the trip to disk and back with nothing lost.</li>
+  <li><strong>Product scale looks cheap for short traces.</strong> At 90 bytes each, a million traces of 1 to 5 moves is about 90 MB. Longer builds and attributes will cost more.</li>
+</ul>
+
+<h2>Not done</h2>
+<ul>
+  <li><strong>No attributes.</strong> The shard holds no UVs, colors, material ids or smooth flags yet. The trial moves do not produce any.</li>
+  <li><strong>No per-trace extras.</strong> Origin, quality flags and executor version are not stored yet.</li>
+  <li><strong>One shard only.</strong> Nothing splits a large dataset across many shards yet.</li>
+  <li><strong>The reader is slow.</strong> It unpacks a whole shard into Python lists. Training will need to slice the arrays directly.</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+  <li>How many traces go in one shard?</li>
+  <li>Where do origin, quality flags and executor version live?</li>
+</ul>
+
+<h2>Next step, proposed</h2>
+<p>Generate round zero: about 10,000 traces, written as shards. Its journal page would show a grid
+of sample shapes and counts of the moves used. This does not start until the owner agrees.</p>
+</body>
+</html>

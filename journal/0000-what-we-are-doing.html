@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0000: What we are doing, and how we will judge it</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · next: <a href="0001-executor-and-player.html">0001</a></nav>
+<h1>0000: What we are doing, and how we will judge it</h1>
+<p class="meta">2026-11-25 · <span class="status proposed">Proposed</span></p>
+
+<p>This page is the shared picture of the project. If the owner and the agent disagree about
+anything here, this page gets fixed before any more work happens.</p>
+
+<h2>The goal</h2>
+<p>Train a small network that looks at a 3D shape and works out the modeling steps that build it.
+The steps are things like "extrude this face" or "inset that face".</p>
+
+<h2>The problem</h2>
+<p>Training that network needs many examples of a shape together with the steps that made it.
+Nobody has that data.</p>
+
+<h2>The trick</h2>
+<p>The data can be made backward. Pick random steps first, then run them. The result is a shape,
+and its steps are already known, because we chose them. Every run is a correct example for free.</p>
+
+<figure>
+  <div class="frames">
+    <figure><img src="images/0001/step-0.svg" alt="A plain cube"><figcaption>Start: a cube</figcaption></figure>
+    <figure><img src="images/0001/step-2.svg" alt="The cube after two moves"><figcaption>After 2 random moves</figcaption></figure>
+    <figure><img src="images/0001/step-5.svg" alt="The cube after five moves"><figcaption>After 5 moves: a new example</figcaption></figure>
+  </div>
+  <figcaption>One example being made. We know its steps because we picked them.</figcaption>
+</figure>
+
+<h2>The game the network plays</h2>
+<p>The network plays one small game, over and over.</p>
+<ol>
+  <li>It sees the mesh as it stands now.</li>
+  <li>It sees the finished shape it should reach.</li>
+  <li>It answers one question: which face, which move, and how much?</li>
+</ol>
+<p>The move is applied, and the game repeats from the new mesh. Building a whole shape is that
+game played a few times in a row.</p>
+
+<h2>How we will judge it</h2>
+<table>
+  <tr><th>Measure</th><th>The question it answers</th><th>How it is computed</th></tr>
+  <tr><td>Next-move accuracy</td><td>Does it pick a sensible single move?</td><td>Show it a mesh and a target. Count how often its move matches the recorded one.</td></tr>
+  <tr><td>Rebuild rate</td><td>Can it build a whole shape?</td><td>Let it make up to 5 moves from a cube. Count how often the result matches the target.</td></tr>
+  <tr><td>Shape distance</td><td>When it misses, how far off is it?</td><td>Sample points on both surfaces and measure the average gap. This is called Chamfer distance.</td></tr>
+</table>
+<ul>
+  <li><strong>The baseline.</strong> Every number is compared with a player that picks moves at random. If the trained network does not beat random, it learned nothing, and we stop.</li>
+  <li><strong>The honest test.</strong> The network is scored only on shapes it never saw in training.</li>
+  <li><strong>The number that matters most.</strong> Rebuild rate. Two different step lists can build the same shape, so next-move accuracy undercounts.</li>
+</ul>
+
+<h2>The later stage</h2>
+<p>Random steps only make random-looking shapes. Later, a 3D generator such as TripoSR supplies
+real target shapes, like a chair. The network tries to build them. Every attempt becomes a new
+example, even a miss, because the moves always describe the shape they built. None of this is
+built or decided yet.</p>
+
+<h2>The end goal: a modeling dataset with history</h2>
+<p>The end product is a dataset where every shape comes with the steps that built it. This
+section is a first sketch of what a good one holds, how big it is, and how its contents are
+sorted. All of it is proposed.</p>
+
+<h3>What one example holds</h3>
+<table>
+  <tr><th>Part</th><th>What it is</th><th>Why it is there</th></tr>
+  <tr><td>Start mesh</td><td>The shape before any move. A cube for now.</td><td>The history needs a fixed starting point.</td></tr>
+  <tr><td>Move list</td><td>Each move with its type, its target and its amount.</td><td>This is the history. It is the part no other dataset has for polygon meshes.</td></tr>
+  <tr><td>Mesh after every move</td><td>Vertices and faces at each step.</td><td>Training reads these, and the player shows them.</td></tr>
+  <tr><td>Attributes</td><td>UVs, normals, colors and material ids, at every step. Optional per trace.</td><td>The format must support them. A finished asset needs them.</td></tr>
+  <tr><td>Final mesh</td><td>The finished shape.</td><td>This is the target the network is asked to reach.</td></tr>
+  <tr><td>Origin</td><td>How the example was made, and the seed or target it came from.</td><td>Random examples and attempts on real targets must stay separable.</td></tr>
+  <tr><td>Target and score</td><td>For an attempt: the shape it aimed at, and how close it landed.</td><td>Close attempts on hard targets are the valuable ones.</td></tr>
+  <tr><td>Quality flags</td><td>Whether the mesh is closed, cuts through itself, or has bent faces.</td><td>Users will want to filter out ugly meshes.</td></tr>
+  <tr><td>Executor version</td><td>Which version of the move code built it.</td><td>The mesh can only be rebuilt exactly with the same code.</td></tr>
+  <tr><td>Picture</td><td>One small image of the final shape.</td><td>People browse a dataset by looking at it.</td></tr>
+</table>
+
+<h3>How big a good dataset is</h3>
+<p>These are the sizes of well-known 3D datasets. The numbers are from memory and have not been
+checked against the papers.</p>
+<table>
+  <tr><th>Dataset</th><th>Size</th><th>Has history?</th></tr>
+  <tr><td>Fusion 360 Gallery (reconstruction set)</td><td>About 8,600 models</td><td>Yes, for CAD: sketch and extrude steps made by people</td></tr>
+  <tr><td>DeepCAD</td><td>About 178,000 models</td><td>Yes, for CAD: sketch and extrude steps</td></tr>
+  <tr><td>ShapeNet (core set)</td><td>About 51,000 models</td><td>No</td></tr>
+  <tr><td>Objaverse</td><td>About 800,000 models</td><td>No</td></tr>
+  <tr><td>ABC</td><td>About 1,000,000 CAD models</td><td>No usable step lists</td></tr>
+  <tr><td>Objaverse-XL</td><td>More than 10,000,000 models</td><td>No</td></tr>
+</table>
+<p>The datasets with history are small and are all CAD. The large ones have no history. That gap
+is what this project aims at. From those sizes, three size tiers follow.</p>
+<table>
+  <tr><th>Size tier</th><th>Examples</th><th>What it is good for</th></tr>
+  <tr><td>Proof</td><td>10,000</td><td>Shows the pipeline works end to end. Matches the smallest history dataset.</td></tr>
+  <tr><td>Research</td><td>100,000 to 200,000</td><td>Matches DeepCAD. Enough for a paper and for others to train on.</td></tr>
+  <tr><td>Product</td><td>1,000,000 or more</td><td>The scale that 3D generation companies train on.</td></tr>
+</table>
+<p><strong>Decided by the owner on 2026-11-25: the real goal is product, and it is always product.</strong>
+The three size tiers are milestones on one road, not three choices.</p>
+<ol>
+  <li><strong>Proof, 10,000.</strong> The first milestone. It shows the pipeline works.</li>
+  <li><strong>Research, 100,000 or more.</strong> The next milestone. It is the first size others can train on.</li>
+  <li><strong>Product, 1,000,000 or more.</strong> The goal. Every design choice is judged by whether it still works at this size.</li>
+</ol>
+<p>One trace gives several training examples, because every move in it is one round of the game.
+A dataset of 10,000 traces with 3 moves each holds 30,000 rounds.</p>
+
+<h3>File format: binary USD (rejected)</h3>
+<p><strong>Decided by the owner on 2026-11-25: USD is not the format to use.</strong> The owner
+raised it as a question, the agent tested it and proposed it, and the owner then ruled it out.
+The owner's reason: USD is too heavy. So the format that replaces it must be light: few dependencies, simple to read, and simple to explain. NumPy shard files were chosen in its place. The notes below are kept as a record of what was tried.</p>
+
+<p>The rejected proposal was to publish the dataset as binary USD files, with the extension
+<code>.usdc</code>. USD is the scene format from Pixar that most 3D tools read.</p>
+
+<p>How a trace maps onto USD:</p>
+<table>
+  <tr><th>Part of a trace</th><th>Where it goes in USD</th></tr>
+  <tr><td>One trace</td><td>One mesh, named like <code>/trace_0003</code></td></tr>
+  <tr><td>The mesh after each move</td><td>One time sample per step. Step 0 is frame 0, step 1 is frame 1.</td></tr>
+  <tr><td>The move list</td><td>Three custom attributes on the mesh: <code>moves:op</code>, <code>moves:face</code>, <code>moves:amount</code></td></tr>
+  <tr><td>Many traces</td><td>About 1,000 traces per file. That gives 1,000 files at product scale, not a million.</td></tr>
+</table>
+
+<p>A quick test wrote the 20 sample traces into one <code>.usdc</code> file, using the USD library
+that ships inside Blender 5.1.2 (USD version 25.8). The test file was thrown away.</p>
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>File size</td><td>20 KB, against 38 KB for the same traces as JSON</td></tr>
+  <tr><td>A mesh per step, with a changing face count</td><td>Works. Trace 3 goes from 6 faces to 22 across its time samples.</td></tr>
+  <tr><td>The move list as custom attributes</td><td>Works. The moves read back intact.</td></tr>
+</table>
+<p>That is about 1 KB per short trace, so roughly 1 GB per million. Longer builds will cost more.</p>
+
+<p>Why it fits:</p>
+<ul>
+  <li><strong>Polygon faces are native.</strong> USD meshes hold quads and larger faces, not only triangles.</li>
+  <li><strong>A build maps onto time.</strong> A USD viewer can scrub through a build with no custom player.</li>
+  <li><strong>Every 3D company reads it.</strong> A buyer can open the dataset in the tool they already use.</li>
+  <li><strong>The writing side needs no install.</strong> The executor runs inside Blender, and Blender bundles USD.</li>
+</ul>
+
+<p>Where it falls short:</p>
+<ul>
+  <li><strong>USD has no idea of modeling history.</strong> The move attributes are our own invention. Other tools show the meshes and ignore the moves.</li>
+  <li><strong>It is slow to train from.</strong> Training wants big packed arrays. So a second, packed copy would be built from the USD files for training only. That copy can be rebuilt at any time and is never the source of truth.</li>
+  <li><strong>The training side lacks the library.</strong> It would need the <code>usd-core</code> package.</li>
+</ul>
+
+<p>Not checked yet:</p>
+<ul>
+  <li>How Blender, Houdini and usdview play back a mesh whose face count changes over time.</li>
+  <li>Whether <code>usd-core</code> installs for the Python version that training uses.</li>
+</ul>
+
+<h3>File format: NumPy shard files (decided)</h3>
+<p><strong>Decided by the owner on 2026-11-25: the dataset is stored as NumPy shard files.</strong>
+A shard is one <code>.npz</code> file that holds a few thousand traces as plain arrays.</p>
+
+<p>What one shard holds:</p>
+<table>
+  <tr><th>Array</th><th>What it holds</th></tr>
+  <tr><td><code>verts</code></td><td>Every vertex of every step, end to end</td></tr>
+  <tr><td><code>faces</code></td><td>The vertex indices of every face, end to end</td></tr>
+  <tr><td><code>face_sizes</code></td><td>How many corners each face has</td></tr>
+  <tr><td><code>move_op</code>, <code>move_face</code>, <code>move_amount</code></td><td>One entry per move: its type, its face and its amount</td></tr>
+  <tr><td><code>op_names</code></td><td>The move name for each type code, so a shard explains itself</td></tr>
+  <tr><td><code>step_vert_start</code>, <code>step_face_start</code></td><td>Where each step begins in the vertex and face arrays</td></tr>
+  <tr><td><code>trace_step_start</code>, <code>trace_move_start</code></td><td>Where each trace begins in the step and move lists</td></tr>
+</table>
+
+<p>A quick test packed the 20 sample traces into one shard. The test file was thrown away.</p>
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>Size, compressed</td><td>4.4 KB, against 38 KB for JSON and 20 KB for binary USD</td></tr>
+  <tr><td>Size, not compressed</td><td>31 KB. Most of that is fixed overhead, which shrinks to nothing in a large shard.</td></tr>
+  <tr><td>Read back the last step of trace 3</td><td>24 vertices and 22 faces, matching the JSON</td></tr>
+</table>
+<p>That is about 220 bytes per short trace when compressed, so roughly 220 MB per million. Longer
+builds will cost more.</p>
+
+<p>Why it fits the need for a light format:</p>
+<ul>
+  <li><strong>One dependency.</strong> Only NumPy, which every machine learning setup already has. Blender bundles it too, so the executor can write shards with no install.</li>
+  <li><strong>No custom reader.</strong> One call to <code>numpy.load</code> opens a shard. The whole format fits in the table above.</li>
+  <li><strong>It is already the training format.</strong> No second packed copy is needed.</li>
+  <li><strong>It scales.</strong> A few thousand traces per shard gives a few hundred files at a million traces.</li>
+</ul>
+
+<p>What it gives up:</p>
+<ul>
+  <li><strong>No 3D tool opens it directly.</strong> People would need our player, or a small script that exports a trace to a common mesh format.</li>
+  <li><strong>Arrays are harder to browse than named records.</strong> The start arrays do the bookkeeping.</li>
+</ul>
+
+<p>The executor writes this format as of <a href="0002-shard-files.html">entry 0002</a>.</p>
+
+<p>Still open inside this format: how many traces go in one shard, and where the per-trace
+extras live, such as origin, quality flags and executor version.</p>
+
+<h3>Attributes: UVs, normals, colors, material ids</h3>
+<p><strong>Required by the owner on 2026-11-25: the dataset must support attributes on faces and
+vertices. That means UVs, normals, colors and material ids.</strong> The array names below are
+proposed. Two points are decided and are listed at the end of this section.</p>
+
+<p>An attribute is extra data attached to the mesh. Each one lives on one of three kinds of
+element. The third kind, the corner, is needed because one vertex can carry different values in
+each face that touches it. A UV seam is the common case.</p>
+<table>
+  <tr><th>Lives on</th><th>One value per</th><th>Typical attributes</th></tr>
+  <tr><td>Vertex</td><td>Vertex</td><td>Color, when it is shared by all faces around the vertex</td></tr>
+  <tr><td>Face</td><td>Face</td><td>Material id. Smooth or flat shading.</td></tr>
+  <tr><td>Corner</td><td>Vertex of one face</td><td>UVs. Normals that differ across a sharp edge. Colors that differ across a face border.</td></tr>
+</table>
+
+<p>How they would fit the shard format. Each attribute is one more array, named after where it
+lives. A shard only holds the attributes its traces use.</p>
+<table>
+  <tr><th>Array</th><th>Lines up with</th><th>Holds</th></tr>
+  <tr><td><code>corner_uv</code></td><td><code>faces</code>, one entry per corner</td><td>Two numbers per corner</td></tr>
+  <tr><td><code>corner_normal</code></td><td><code>faces</code></td><td>Three numbers per corner. Only for hand-set normals.</td></tr>
+  <tr><td><code>corner_color</code> or <code>vert_color</code></td><td><code>faces</code> or <code>verts</code></td><td>Four numbers: red, green, blue, alpha</td></tr>
+  <tr><td><code>face_material</code></td><td><code>face_sizes</code>, one entry per face</td><td>One material id per face</td></tr>
+  <tr><td><code>face_smooth</code></td><td><code>face_sizes</code></td><td>One flag per face: smooth or flat</td></tr>
+</table>
+<p>The rule is general. Any array whose name starts with <code>vert_</code>, <code>face_</code> or
+<code>corner_</code> is an attribute on that kind of element. New attributes need no change to
+the format.</p>
+
+<p>What this requirement changes:</p>
+<ul>
+  <li><strong>Every move must say what happens to attributes.</strong> When an extrude adds side walls, those walls need UVs and a material. Blender's bmesh already carries attributes through its moves, which is a strong reason to keep it.</li>
+  <li><strong>Some moves will only change attributes.</strong> Assigning a material or unwrapping UVs changes no geometry. These are new kinds of move. They are not in the trial move set.</li>
+  <li><strong>Files get larger when attributes are present.</strong> UVs add two numbers per corner, at every step. The size per trace has not been measured with attributes.</li>
+  <li><strong>The start cube needs attributes when a trace uses them.</strong> In that case it needs UVs and a material before any move runs.</li>
+</ul>
+
+<p><strong>Two decisions by the owner on 2026-11-25:</strong></p>
+<ul>
+  <li><strong>Only store normals that cannot be worked out.</strong> Plain face normals come from the vertex positions, so they are never stored. What is stored is which faces are smooth, and any hand-set normals.</li>
+  <li><strong>Attributes are optional.</strong> A trace may carry all of them, some of them, or none. A shard holds an attribute array only when its traces use it. Any reader must work when an array is missing.</li>
+</ul>
+
+<h3>Difficulty tiers</h3>
+<p>Size alone is not enough. A million one-move examples teach very little. The dataset should
+climb in difficulty.</p>
+<table>
+  <tr><th>Tier</th><th>Moves per shape</th><th>What the shapes look like</th><th>Where they come from</th></tr>
+  <tr><td>1. Single moves</td><td>1 to 2</td><td>A cube with one bump or one inset</td><td>Random moves</td></tr>
+  <tr><td>2. Short builds</td><td>3 to 5</td><td>Lumpy blocks. The sample traces are this tier.</td><td>Random moves</td></tr>
+  <tr><td>3. Simple parts</td><td>10 to 30</td><td>Steps, frames, tables, towers</td><td>Attempts on simple generated targets</td></tr>
+  <tr><td>4. Real objects</td><td>50 to 300</td><td>A chair, a mug, a small building</td><td>Attempts on generated targets, after several turns of the loop</td></tr>
+  <tr><td>5. Production assets</td><td>Thousands</td><td>What a game artist ships</td><td>Out of reach for this project</td></tr>
+</table>
+<p>The proof covers tiers 1 and 2. The loop with a generator is how the dataset reaches tiers 3 and 4.</p>
+
+<h3>Other ways to sort the examples</h3>
+<table>
+  <tr><th>Sort by</th><th>Categories</th></tr>
+  <tr><td>Origin</td><td>Random moves. A model's attempt on a generated target. Made by a person, if that ever exists.</td></tr>
+  <tr><td>Moves used</td><td>Face moves only (extrude, inset, slide). Edge moves (loop cut, bevel). Vertex moves. Whole-mesh moves (mirror, subdivide).</td></tr>
+  <tr><td>Kind of shape</td><td>Blocky and hard-edged. Paneled, with insets and frames. Symmetric. Made of several parts. Soft and organic.</td></tr>
+  <tr><td>Kind of object</td><td>Furniture, buildings, vehicles, containers, tools. This only applies to tiers 3 and up.</td></tr>
+  <tr><td>Quality</td><td>Clean: closed, no self-cuts, flat faces. Valid but ugly. Broken.</td></tr>
+</table>
+
+<h3>What makes it good, beyond size</h3>
+<ul>
+  <li><strong>Every example can be verified.</strong> Running the moves rebuilds the mesh exactly.</li>
+  <li><strong>The histories look like modeling.</strong> A step list that an artist would never use is worth less, even if the shape is right. Nothing checks this yet.</li>
+  <li><strong>The spread is even.</strong> No tier, move or kind of shape should drown out the rest.</li>
+</ul>
+
+<h2>What this does not prove</h2>
+<p>The first stage only shows that the network can undo our own random steps. It says nothing
+yet about real shapes.</p>
+
+<h2>Open questions</h2>
+<ul>
+  <li>Does this match what the owner wants to build?</li>
+  <li>Are these three measures the right ones?</li>
+  <li>The move set is a trial: extrude, inset and slide, all on faces. It is not approved.</li>
+  <li>Are the five difficulty tiers the right cut, and are the move counts sensible?</li>
+  <li>Which kinds of shape and object matter most to the companies this is meant to impress?</li>
+  <li>The dataset sizes in the table need checking against their papers.</li>
+  <li>When do attribute moves, such as assigning a material or unwrapping UVs, join the move set?</li>
+  <li>How many traces go in one shard, and where do origin, quality flags and executor version live?</li>
+</ul>
+</body>
+</html>

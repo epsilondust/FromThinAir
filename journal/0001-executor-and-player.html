@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0001: The executor and the trace player</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav><a href="index.html">Journal</a> · previous: <a href="0000-what-we-are-doing.html">0000</a> · next: <a href="0002-shard-files.html">0002</a></nav>
+<h1>0001: The executor and the trace player</h1>
+<p class="meta">2026-11-25 · <span class="status">Done, not reviewed</span></p>
+
+<p>The agent built this step before the owner had clearly agreed to it. It is recorded here as
+it happened. The owner has not reviewed it.</p>
+
+<h2>Goal of this step</h2>
+<p>Build the part that runs modeling moves on a cube, and a way to watch what it does. Prove that
+the same moves always give the same mesh.</p>
+
+<h2>What was done</h2>
+<table>
+  <tr><th>File</th><th>What it is</th></tr>
+  <tr><td><code>executor.py</code></td><td>Runs a list of moves on a cube and records the mesh after every move. It uses Blender's bmesh library, with no window.</td></tr>
+  <tr><td><code>index.html</code></td><td>The trace player. It steps through one recording in the browser. You can rotate the mesh.</td></tr>
+  <tr><td><code>traces.json</code></td><td>20 sample recordings, each 1 to 5 moves long.</td></tr>
+  <tr><td><code>render.py</code></td><td>Draws each step of a recording as an image. It made the pictures on this page.</td></tr>
+</table>
+
+<p>A recording is called a <strong>trace</strong>. It holds the moves and the mesh after each one.</p>
+
+<p>The trial move set has three moves. Each one acts on a single face.</p>
+<table>
+  <tr><th>Move</th><th>Amounts</th><th>Effect</th></tr>
+  <tr><td>extrude</td><td>0.25, 0.5 or 1.0</td><td>Pushes the face out and adds side walls.</td></tr>
+  <tr><td>inset</td><td>0.2 or 0.4 of the face's shortest edge</td><td>Adds a smaller face inside, with a ring of faces around it.</td></tr>
+  <tr><td>slide</td><td>-0.5, -0.25, 0.25 or 0.5</td><td>Moves the face in or out. Adds no geometry.</td></tr>
+</table>
+
+<h2>What we saw</h2>
+<p>This is sample trace 3, frame by frame. The orange face is where the next move lands.</p>
+
+<div class="frames">
+  <figure><img src="images/0001/step-0.svg" alt="Step 0"><figcaption>Start cube. Next: inset face 3 by 0.4</figcaption></figure>
+  <figure><img src="images/0001/step-1.svg" alt="Step 1"><figcaption>After move 1. Next: extrude face 8 by 0.25</figcaption></figure>
+  <figure><img src="images/0001/step-2.svg" alt="Step 2"><figcaption>After move 2. Next: extrude face 11 by 0.5</figcaption></figure>
+  <figure><img src="images/0001/step-3.svg" alt="Step 3"><figcaption>After move 3. Next: slide face 0 by 0.5</figcaption></figure>
+  <figure><img src="images/0001/step-4.svg" alt="Step 4"><figcaption>After move 4. Next: inset face 7 by 0.4</figcaption></figure>
+  <figure><img src="images/0001/step-5.svg" alt="Step 5"><figcaption>After move 5. The final mesh: 24 vertices, 22 faces</figcaption></figure>
+</div>
+
+<h2>The determinism test</h2>
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>Replay 2,000 random move lists and compare each mesh with the first run</td><td>All 2,000 matched, down to vertex and face order</td></tr>
+  <tr><td>Run the generator in two separate Blender processes and compare the files</td><td>Byte-identical files, same SHA-1</td></tr>
+</table>
+
+<h2>What it means</h2>
+<ul>
+  <li><strong>Stored examples can be trusted.</strong> Running the moves again rebuilds the mesh exactly, so any example can be verified later.</li>
+  <li><strong>Every later step can be watched.</strong> Anything that writes a trace can be played back or drawn as frames.</li>
+</ul>
+
+<h2>Problems noticed</h2>
+<ul>
+  <li><strong>Random moves make ugly shapes.</strong> A slide on a narrow ring face pulls its neighbors out of flat. That gives slivers and bent faces.</li>
+  <li><strong>Meshes can cut through themselves.</strong> Nothing checks for that yet.</li>
+  <li><strong>The frame images are simple drawings.</strong> Faces are painted far to near, so a deep dent can draw in the wrong order.</li>
+  <li><strong>The player needs the network.</strong> It loads the three.js library from the web.</li>
+</ul>
+
+<h2>Open questions</h2>
+<ul>
+  <li>Is the trial move set acceptable for the first experiment?</li>
+  <li>Should ugly or self-cutting shapes be filtered out of the dataset?</li>
+</ul>
+
+<h2>Next step, proposed</h2>
+<p>Generate round zero: about 10,000 traces. Its journal page would show a grid of sample shapes
+and counts of the moves used. This does not start until the owner agrees.</p>
+</body>
+</html>
