@@ -2,31 +2,31 @@
 
 A 3D modeling dataset built from thin air.
 
-Every shape in it comes with the modeling steps that built it. Nobody modeled anything by hand.
+Every shape in this dataset comes with the complete modeling history that built it, and every history is verified. Replay the moves and you get the exact same mesh, every time. A script made all of it, with no scraped data. The first 10,000 examples took four seconds to generate on a laptop, and they fit in about 1 MB.
 
 ![One shape being built from a cube in five moves](images/build.svg)
 
-That is one example from the dataset. It starts as a cube. Five moves later it is a new shape, and the five moves are stored with it.
+The image above is one example. It starts as a cube and changes one face at a time over five moves. The dataset stores those five moves along with the mesh after each one.
 
 ## The idea
 
-A network that turns a 3D shape into modeling steps would be useful. Its output would be a history you can edit, not a frozen mesh. Training one needs many shapes paired with the steps that made them, and that data does not exist for polygon meshes.
+A network that turns a 3D shape into modeling steps would give an artist a history to edit instead of a fixed mesh. Training such a network takes many shapes paired with the steps that made them, and for polygon meshes that data does not exist.
 
-So this project makes the data backward.
+This project generates the data by working backward. Instead of starting from a finished shape and guessing how it was built, it starts from the moves:
 
 1. Pick some modeling moves at random.
 2. Run them on a cube.
 3. Keep the moves and the mesh they made.
 
-The moves are known before the shape exists, so the pair is always correct. Running the stored moves again rebuilds the stored mesh exactly, so anyone can check any example.
+Because the mesh is made from the moves, every pair is correct by construction. It is also easy to verify, since running the stored moves again rebuilds the stored mesh exactly.
 
 ## What the shapes look like
 
-These are 48 shapes from the first dataset, picked at random from the ones that pass every quality check.
+The 48 shapes below were picked at random from the ones in the first dataset that pass every quality check.
 
 ![A grid of 48 shapes from the dataset](images/shapes.svg)
 
-They are lumpy blocks. Random moves do not make chairs. Getting to real objects is the next part of the plan, and it is not built yet.
+They look like lumpy blocks rather than real objects, which is what random moves produce. Getting from blocks to recognizable objects is the next part of the plan, and none of it is built yet.
 
 ## What is here
 
@@ -43,9 +43,7 @@ They are lumpy blocks. Random moves do not make chairs. Getting to real objects 
 
 ## The first dataset
 
-`data/round0.npz` holds 10,000 examples. Each one is 1 to 5 moves from a cube.
-
-There are three moves so far, and each one acts on a single face.
+`data/round0.npz` holds 10,000 examples, each between one and five moves away from a cube. The move set is small for now. It has three moves, and each one acts on a single face.
 
 | Move | What it does |
 | --- | --- |
@@ -53,7 +51,7 @@ There are three moves so far, and each one acts on a single face.
 | inset | Adds a smaller face inside, with a ring of faces around it. |
 | slide | Moves the face in or out. |
 
-Some numbers, measured on an Apple M2 Max using one process:
+The numbers below were measured on an Apple M2 Max using one process.
 
 | Measure | Value |
 | --- | --- |
@@ -65,7 +63,7 @@ Some numbers, measured on an Apple M2 Max using one process:
 
 ## Checking the shapes
 
-Random moves often make bad geometry. `evals.py` looks for it.
+Random moves often produce bad geometry, and `evals.py` checks every shape for it. The image below shows a row of shapes that pass, a row of shapes that cut through themselves, and a row of shapes with a bent face.
 
 ![Rows of shapes that are clean, that cut through themselves, and that have a bent face](images/flags.svg)
 
@@ -77,25 +75,25 @@ Random moves often make bad geometry. `evals.py` looks for it.
 | Has a bent face | 1,962 |
 | Has a thin face | 1,294 |
 
-The more random moves a shape has, the less likely it is to pass. One-move shapes pass every time. Five-move shapes pass 43% of the time.
+Longer builds fail more often. Every one-move shape passes every check, while only 43% of five-move shapes do.
 
 ## Running it
 
 You need Blender 5.1 and a Python with NumPy.
 
-Make a dataset. This writes the file, reads it back, and replays every move list as a check.
+The first command makes a dataset. It writes the file, reads it back, and replays every move list as a check.
 
 ```
 blender -b --factory-startup --python executor.py -- --n 10000 --seed 0 --out data/round0.npz
 ```
 
-Run the checks on it.
+The second runs the checks on that file.
 
 ```
 python evals.py data/round0.npz
 ```
 
-Make the images on this page.
+The third remakes the images on this page.
 
 ```
 python readme_images.py
@@ -103,18 +101,17 @@ python readme_images.py
 
 ## The journal
 
-Every step of this project has a page in `journal/`. Each page says what the step was for, what was done, what was seen, and what comes next. Clone the repo and open `journal/index.html` in a browser to read it.
+Every step of this project has a page in `journal/`. Each page records what the step was for, what was done, what was seen, and what comes next. To read it, clone the repo and open `journal/index.html` in a browser.
 
 ## Where this stands
 
-- The dataset, the file format and the first checks work.
-- No network has been trained on the data yet.
-- The three moves are a trial set. They will change.
-- The plan for harder shapes is a loop. A 3D generator supplies target shapes, a small network tries to build them, and every attempt becomes a new example. None of that is built.
+The dataset, the file format and the first checks all work. Training a network on the data has not started yet, and the three moves are a trial set that will change.
+
+The plan for harder shapes is a loop. A 3D generator supplies target shapes, a small network tries to build them, and every attempt becomes a new example. None of that loop is built.
 
 ## Related work
 
-This project builds on ideas from other people's work. These are the closest ones found so far.
+This project builds on other people's ideas. These are the closest ones found so far.
 
 - [PLAD](https://arxiv.org/abs/2011.13045): self-training for shape programs.
 - [PLLM](https://arxiv.org/abs/2602.12561): a self-training loop for CAD programs.

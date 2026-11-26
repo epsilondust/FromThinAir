@@ -30,7 +30,7 @@ no generator.</p>
   <tr><td><code>render.py</code></td><td>It can now draw the final mesh of every trace, for a grid like the one below.</td></tr>
 </table>
 <p>Each trace has 1 to 5 moves. Each move is picked at random: the type, the face, and the amount.
-The random seed is 0, so the run can be repeated exactly.</p>
+The random seed is 0, which makes the run exactly repeatable.</p>
 
 <h2>Timing</h2>
 <p>The machine is an Apple M2 Max with 12 cores. The run used one process.</p>
@@ -114,8 +114,8 @@ The random seed is 0, so the run can be repeated exactly.</p>
   <tr><td>Different move lists</td><td>7,628 of 10,000</td></tr>
   <tr><td>Different final meshes</td><td>7,518 of 10,000</td></tr>
 </table>
-<p>About a quarter of the dataset is repeats. The reason is simple. A cube has 6 faces and each
-face has 9 possible moves, so only 54 one-move traces exist. The run made 1,958 of them.</p>
+<p>About a quarter of the dataset is repeats. A cube has 6 faces and each face has 9 possible
+moves, which means only 54 one-move traces exist. The run made 1,958 of them.</p>
 
 <h2>The check</h2>
 <p>All 10,000 traces were read back from the shard, and their moves were run again. Every one
@@ -125,7 +125,7 @@ rebuilt its stored meshes exactly, down to vertex and face order.</p>
 <ul>
   <li><strong>The proof milestone has its data.</strong> There are 10,000 traces on disk, and each one can be verified.</li>
   <li><strong>The count overstates the variety.</strong> There are 7,628 different move lists, not 10,000.</li>
-  <li><strong>The repeats matter for testing.</strong> If the same shape lands in both the training set and the test set, the test is no longer honest. The split must be made by shape, not by trace.</li>
+  <li><strong>The repeats matter for testing.</strong> If the same shape lands in both the training set and the test set, the test no longer measures what it should. The split must be made by shape, not by trace.</li>
   <li><strong>The moves are spread evenly.</strong> Each move type is used about a third of the time, and each length about a fifth.</li>
   <li><strong>Generation is not the bottleneck.</strong> Product scale is minutes of computing for traces this short.</li>
 </ul>
@@ -134,13 +134,13 @@ rebuilt its stored meshes exactly, down to vertex and face order.</p>
 <ul>
   <li><strong>Repeats are still in the file.</strong> Nothing was removed.</li>
   <li><strong>Only exact repeats are counted.</strong> The same shape built in a different order has a different vertex order, and the count misses it.</li>
-  <li><strong>No quality check.</strong> Shapes that cut through themselves are not flagged.</li>
-  <li><strong>No attributes and no per-trace extras.</strong> The shard holds meshes and moves only.</li>
+  <li><strong>Quality is not checked.</strong> Shapes that cut through themselves are not flagged.</li>
+  <li><strong>Attributes and per-trace extras are missing.</strong> The shard holds meshes and moves only.</li>
 </ul>
 
 <h2>Open questions</h2>
 <ul>
-  <li>Should repeats be removed, so the dataset is 10,000 different move lists?</li>
+  <li>Should repeats be removed, to make the dataset 10,000 different move lists?</li>
   <li>Should one-move traces be capped, since only 54 exist?</li>
   <li>Should the dataset file be kept in git? It is 885 KB.</li>
 </ul>

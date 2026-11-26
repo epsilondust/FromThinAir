@@ -37,7 +37,7 @@ dataset is stored as NumPy shard files. Before this step, the executor wrote JSO
 
 <h2>Two choices made inside the format</h2>
 <ul>
-  <li><strong>Vertex positions are stored as 32-bit numbers.</strong> Blender holds positions at that size, so nothing is lost.</li>
+  <li><strong>Vertex positions are stored as 32-bit numbers.</strong> Blender holds positions at that size, and nothing is lost.</li>
   <li><strong>Move amounts are stored as 64-bit numbers.</strong> A rounded amount could rebuild a slightly different mesh, and then the stored example could not be verified.</li>
 </ul>
 
@@ -52,7 +52,7 @@ dataset is stored as NumPy shard files. Before this step, the executor wrote JSO
 </table>
 
 <p>The replay check is stronger than the one in entry 0001. That one compared two runs in memory.
-This one reads the file from disk first, so it tests the file format as well as the executor.</p>
+This one reads the file from disk first, which tests the file format as well as the executor.</p>
 
 <h2>What it means</h2>
 <ul>
@@ -62,8 +62,8 @@ This one reads the file from disk first, so it tests the file format as well as 
 
 <h2>Not done</h2>
 <ul>
-  <li><strong>No attributes.</strong> The shard holds no UVs, colors, material ids or smooth flags yet. The trial moves do not produce any.</li>
-  <li><strong>No per-trace extras.</strong> Origin, quality flags and executor version are not stored yet.</li>
+  <li><strong>Attributes are missing.</strong> The shard holds no UVs, colors, material ids or smooth flags yet. The trial moves do not produce any.</li>
+  <li><strong>Per-trace extras are missing.</strong> Origin, quality flags and executor version are not stored yet.</li>
   <li><strong>One shard only.</strong> Nothing splits a large dataset across many shards yet.</li>
   <li><strong>The reader is slow.</strong> It unpacks a whole shard into Python lists. Training will need to slice the arrays directly.</li>
 </ul>

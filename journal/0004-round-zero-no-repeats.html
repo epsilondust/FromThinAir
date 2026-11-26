@@ -29,7 +29,7 @@ meshes.</p>
 </table>
 <p>The rule for a repeat is the final mesh, not the move list. Two different move lists can end in
 the same mesh, and both would leak into a test. Removing by final mesh removes both kinds.</p>
-<p>The random seed is still 0, so the run can be repeated exactly.</p>
+<p>The random seed is still 0, which makes the run exactly repeatable.</p>
 
 <h2>Timing</h2>
 <p>The machine is an Apple M2 Max with 12 cores. The run used one process.</p>
@@ -117,7 +117,7 @@ the same mesh, and both would leak into a test. Removing by final mesh removes b
 <ul>
   <li><strong>Only exact repeats are removed.</strong> The same shape built in a different order has a different vertex order, and the rule misses it. How often that happens is not measured.</li>
   <li><strong>A shape can still be the start of another.</strong> A two-move shape may also appear as a step inside a longer trace. Those shared steps are not removed.</li>
-  <li><strong>No quality check.</strong> Shapes that cut through themselves are not flagged.</li>
+  <li><strong>Quality is not checked.</strong> Shapes that cut through themselves are not flagged.</li>
   <li><strong>The sample files are unchanged.</strong> <code>traces.npz</code> and <code>traces.json</code> are still the 20 samples from entry 0002.</li>
 </ul>
 

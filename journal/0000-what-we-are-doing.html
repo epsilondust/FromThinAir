@@ -19,12 +19,13 @@ anything here, this page gets fixed before any more work happens.</p>
 The steps are things like "extrude this face" or "inset that face".</p>
 
 <h2>The problem</h2>
-<p>Training that network needs many examples of a shape together with the steps that made it.
-Nobody has that data.</p>
+<p>Training that network needs many examples of a shape together with the steps that made it,
+and that data does not exist for polygon meshes.</p>
 
-<h2>The trick</h2>
-<p>The data can be made backward. Pick random steps first, then run them. The result is a shape,
-and its steps are already known, because we chose them. Every run is a correct example for free.</p>
+<h2>The approach</h2>
+<p>The data can be made backward. We pick random steps first and then run them. The result is a
+shape whose steps are already known, because we chose them, and that makes every run a correct
+example.</p>
 
 <figure>
   <div class="frames">
@@ -36,7 +37,7 @@ and its steps are already known, because we chose them. Every run is a correct e
 </figure>
 
 <h2>The game the network plays</h2>
-<p>The network plays one small game, over and over.</p>
+<p>The network plays one small game, repeated at every step.</p>
 <ol>
   <li>It sees the mesh as it stands now.</li>
   <li>It sees the finished shape it should reach.</li>
@@ -54,8 +55,8 @@ game played a few times in a row.</p>
 </table>
 <ul>
   <li><strong>The baseline.</strong> Every number is compared with a player that picks moves at random. If the trained network does not beat random, it learned nothing, and we stop.</li>
-  <li><strong>The honest test.</strong> The network is scored only on shapes it never saw in training.</li>
-  <li><strong>The number that matters most.</strong> Rebuild rate. Two different step lists can build the same shape, so next-move accuracy undercounts.</li>
+  <li><strong>The test set.</strong> The network is scored only on shapes it never saw in training.</li>
+  <li><strong>The main number.</strong> Rebuild rate matters most. Two different step lists can build the same shape, and next-move accuracy counts the second one as wrong.</li>
 </ul>
 
 <h2>The later stage</h2>
@@ -93,11 +94,11 @@ checked against the papers.</p>
   <tr><td>DeepCAD</td><td>About 178,000 models</td><td>Yes, for CAD: sketch and extrude steps</td></tr>
   <tr><td>ShapeNet (core set)</td><td>About 51,000 models</td><td>No</td></tr>
   <tr><td>Objaverse</td><td>About 800,000 models</td><td>No</td></tr>
-  <tr><td>ABC</td><td>About 1,000,000 CAD models</td><td>No usable step lists</td></tr>
+  <tr><td>ABC</td><td>About 1,000,000 CAD models</td><td>Its step lists are not usable</td></tr>
   <tr><td>Objaverse-XL</td><td>More than 10,000,000 models</td><td>No</td></tr>
 </table>
-<p>The datasets with history are small and are all CAD. The large ones have no history. That gap
-is what this project aims at. From those sizes, three size tiers follow.</p>
+<p>The datasets with history are small and are all CAD, while the large ones have no history.
+This project aims at that gap. Three size tiers follow from those sizes.</p>
 <table>
   <tr><th>Size tier</th><th>Examples</th><th>What it is good for</th></tr>
   <tr><td>Proof</td><td>10,000</td><td>Shows the pipeline works end to end. Matches the smallest history dataset.</td></tr>
@@ -117,7 +118,7 @@ A dataset of 10,000 traces with 3 moves each holds 30,000 rounds.</p>
 <h3>File format: binary USD (rejected)</h3>
 <p><strong>Decided by the owner on 2026-11-25: USD is not the format to use.</strong> The owner
 raised it as a question, the agent tested it and proposed it, and the owner then ruled it out.
-The owner's reason: USD is too heavy. So the format that replaces it must be light: few dependencies, simple to read, and simple to explain. NumPy shard files were chosen in its place. The notes below are kept as a record of what was tried.</p>
+The owner's reason: USD is too heavy. The format that replaces it must therefore be light, with few dependencies, and simple to read and explain. NumPy shard files were chosen in its place. The notes below are kept as a record of what was tried.</p>
 
 <p>The rejected proposal was to publish the dataset as binary USD files, with the extension
 <code>.usdc</code>. USD is the scene format from Pixar that most 3D tools read.</p>
@@ -139,7 +140,7 @@ that ships inside Blender 5.1.2 (USD version 25.8). The test file was thrown awa
   <tr><td>A mesh per step, with a changing face count</td><td>Works. Trace 3 goes from 6 faces to 22 across its time samples.</td></tr>
   <tr><td>The move list as custom attributes</td><td>Works. The moves read back intact.</td></tr>
 </table>
-<p>That is about 1 KB per short trace, so roughly 1 GB per million. Longer builds will cost more.</p>
+<p>That is about 1 KB per short trace, or roughly 1 GB per million. Longer builds will cost more.</p>
 
 <p>Why it fits:</p>
 <ul>
@@ -152,7 +153,7 @@ that ships inside Blender 5.1.2 (USD version 25.8). The test file was thrown awa
 <p>Where it falls short:</p>
 <ul>
   <li><strong>USD has no idea of modeling history.</strong> The move attributes are our own invention. Other tools show the meshes and ignore the moves.</li>
-  <li><strong>It is slow to train from.</strong> Training wants big packed arrays. So a second, packed copy would be built from the USD files for training only. That copy can be rebuilt at any time and is never the source of truth.</li>
+  <li><strong>It is slow to train from.</strong> Training wants big packed arrays, which means a second, packed copy would be built from the USD files for training only. That copy can be rebuilt at any time and is never the source of truth.</li>
   <li><strong>The training side lacks the library.</strong> It would need the <code>usd-core</code> package.</li>
 </ul>
 
@@ -173,7 +174,7 @@ A shard is one <code>.npz</code> file that holds a few thousand traces as plain 
   <tr><td><code>faces</code></td><td>The vertex indices of every face, end to end</td></tr>
   <tr><td><code>face_sizes</code></td><td>How many corners each face has</td></tr>
   <tr><td><code>move_op</code>, <code>move_face</code>, <code>move_amount</code></td><td>One entry per move: its type, its face and its amount</td></tr>
-  <tr><td><code>op_names</code></td><td>The move name for each type code, so a shard explains itself</td></tr>
+  <tr><td><code>op_names</code></td><td>The move name for each type code, which lets a shard explain itself</td></tr>
   <tr><td><code>step_vert_start</code>, <code>step_face_start</code></td><td>Where each step begins in the vertex and face arrays</td></tr>
   <tr><td><code>trace_step_start</code>, <code>trace_move_start</code></td><td>Where each trace begins in the step and move lists</td></tr>
 </table>
@@ -185,20 +186,20 @@ A shard is one <code>.npz</code> file that holds a few thousand traces as plain 
   <tr><td>Size, not compressed</td><td>31 KB. Most of that is fixed overhead, which shrinks to nothing in a large shard.</td></tr>
   <tr><td>Read back the last step of trace 3</td><td>24 vertices and 22 faces, matching the JSON</td></tr>
 </table>
-<p>That is about 220 bytes per short trace when compressed, so roughly 220 MB per million. Longer
+<p>That is about 220 bytes per short trace when compressed, or roughly 220 MB per million. Longer
 builds will cost more.</p>
 
 <p>Why it fits the need for a light format:</p>
 <ul>
-  <li><strong>One dependency.</strong> Only NumPy, which every machine learning setup already has. Blender bundles it too, so the executor can write shards with no install.</li>
-  <li><strong>No custom reader.</strong> One call to <code>numpy.load</code> opens a shard. The whole format fits in the table above.</li>
-  <li><strong>It is already the training format.</strong> No second packed copy is needed.</li>
+  <li><strong>One dependency.</strong> Only NumPy, which every machine learning setup already has. Blender bundles it too, which lets the executor write shards with no install.</li>
+  <li><strong>It needs no custom reader.</strong> One call to <code>numpy.load</code> opens a shard. The whole format fits in the table above.</li>
+  <li><strong>It is already the training format.</strong> A second packed copy is not needed.</li>
   <li><strong>It scales.</strong> A few thousand traces per shard gives a few hundred files at a million traces.</li>
 </ul>
 
 <p>What it gives up:</p>
 <ul>
-  <li><strong>No 3D tool opens it directly.</strong> People would need our player, or a small script that exports a trace to a common mesh format.</li>
+  <li><strong>3D tools cannot open it directly.</strong> People would need our player, or a small script that exports a trace to a common mesh format.</li>
   <li><strong>Arrays are harder to browse than named records.</strong> The start arrays do the bookkeeping.</li>
 </ul>
 
@@ -246,13 +247,13 @@ the format.</p>
 
 <p><strong>Two decisions by the owner on 2026-11-25:</strong></p>
 <ul>
-  <li><strong>Only store normals that cannot be worked out.</strong> Plain face normals come from the vertex positions, so they are never stored. What is stored is which faces are smooth, and any hand-set normals.</li>
+  <li><strong>Only store normals that cannot be worked out.</strong> Plain face normals come from the vertex positions and are never stored. What is stored is which faces are smooth, and any hand-set normals.</li>
   <li><strong>Attributes are optional.</strong> A trace may carry all of them, some of them, or none. A shard holds an attribute array only when its traces use it. Any reader must work when an array is missing.</li>
 </ul>
 
 <h3>Difficulty tiers</h3>
-<p>Size alone is not enough. A million one-move examples teach very little. The dataset should
-climb in difficulty.</p>
+<p>Size alone is not enough, because a million one-move examples teach very little. The dataset
+should also climb in difficulty.</p>
 <table>
   <tr><th>Tier</th><th>Moves per shape</th><th>What the shapes look like</th><th>Where they come from</th></tr>
   <tr><td>1. Single moves</td><td>1 to 2</td><td>A cube with one bump or one inset</td><td>Random moves</td></tr>
@@ -277,7 +278,7 @@ climb in difficulty.</p>
 <ul>
   <li><strong>Every example can be verified.</strong> Running the moves rebuilds the mesh exactly.</li>
   <li><strong>The histories look like modeling.</strong> A step list that an artist would never use is worth less, even if the shape is right. Nothing checks this yet.</li>
-  <li><strong>The spread is even.</strong> No tier, move or kind of shape should drown out the rest.</li>
+  <li><strong>The spread is even.</strong> A single tier, move or kind of shape should not drown out the rest.</li>
 </ul>
 
 <h2>What this does not prove</h2>
