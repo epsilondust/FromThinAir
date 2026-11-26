@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trace player</title>
+<style>
+  body { margin: 0; font: 14px system-ui, sans-serif; background: #16181c; color: #e6e6e6; }
+  #bar { display: flex; gap: 12px; align-items: center; padding: 10px 14px; flex-wrap: wrap; }
+  #views { display: flex; height: calc(100vh - 100px); }
+  .view { flex: 1; position: relative; min-width: 0; }
+  .view canvas { width: 100%; height: 100%; display: block; }
+  .view span { position: absolute; left: 14px; top: 8px; color: #9aa3ad; }
+  #caption { padding: 8px 14px; font-variant-numeric: tabular-nums; }
+  #step { flex: 1; min-width: 160px; }
+  button, select { font: inherit; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <label>Trace <select id="trace"></select></label>
+  <button id="play">Play</button>
+  <label for="step">Step</label>
+  <input id="step" type="range" min="0" value="0">
+  <span id="count"></span>
+</div>
+<div id="views">
+  <div class="view"><span>Current mesh. The orange face is where the next move lands. Drag to rotate.</span><canvas id="current"></canvas></div>
+  <div class="view"><span>Target (final mesh)</span><canvas id="target"></canvas></div>
+</div>
+<div id="caption" aria-live="polite"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const traces = await (await fetch('traces.json')).json();
+const $ = id => document.getElementById(id);
+
+// Both views share one camera, so the mesh and the target always turn together.
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+camera.position.set(5, 4, 6);
+const views = ['current', 'target'].map(id => {
+  const canvas = $(id);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(devicePixelRatio);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x16181c);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+  sun.position.set(3, 5, 4);
+  scene.add(sun);
+  return { canvas, renderer, scene, group: null };
+});
+const controls = new OrbitControls(camera, views[0].canvas);
+new OrbitControls(camera, views[1].canvas);
+
+// Build one mesh. Faces are polygons, so each one is cut into a fan of triangles for drawing.
+function build(mesh, highlight) {
+  const positions = [], colors = [], lines = [];
+  mesh.faces.forEach((face, index) => {
+    const color = index === highlight ? [1.0, 0.55, 0.1] : [0.62, 0.68, 0.76];
+    for (let i = 1; i < face.length - 1; i++) {
+      for (const v of [face[0], face[i], face[i + 1]]) {
+        positions.push(...mesh.verts[v]);
+        colors.push(...color);
+      }
+    }
+    face.forEach((v, i) => lines.push(...mesh.verts[v], ...mesh.verts[face[(i + 1) % face.length]]));
+  });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  const material = new THREE.MeshStandardMaterial({
+    vertexColors: true, flatShading: true, side: THREE.DoubleSide,
+    polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
+  });
+  const edges = new THREE.BufferGeometry();
+  edges.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
+  const group = new THREE.Group();
+  group.add(new THREE.Mesh(geometry, material));
+  group.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x111111 })));
+  // Blender has z up and three.js has y up, so the mesh is turned to stand upright.
+  group.rotation.x = -Math.PI / 2;
+  return group;
+}
+
+function show(view, mesh, highlight) {
+  if (view.group) view.scene.remove(view.group);
+  view.group = build(mesh, highlight);
+  view.scene.add(view.group);
+}
+
+function describe(move) {
+  return `${move.op} face ${move.face} by ${move.amount}`;
+}
+
+function update() {
+  const trace = traces[$('trace').value];
+  const step = Number($('step').value);
+  const next = trace.moves[step];
+  show(views[0], trace.steps[step], next ? next.face : -1);
+  show(views[1], trace.steps.at(-1), -1);
+  $('count').textContent = `${step} of ${trace.moves.length}`;
+  const mesh = trace.steps[step];
+  $('caption').textContent =
+    `${mesh.verts.length} vertices, ${mesh.faces.length} faces. ` +
+    (step ? `Last move: ${describe(trace.moves[step - 1])}. ` : 'Start cube. ') +
+    (next ? `Next move: ${describe(next)}.` : 'Done. The mesh matches the target.');
+}
+
+traces.forEach((trace, i) => $('trace').add(new Option(`${i}: ${trace.moves.length} moves`, i)));
+$('trace').onchange = () => { $('step').max = traces[$('trace').value].moves.length; $('step').value = 0; update(); };
+$('step').oninput = update;
+$('trace').onchange();
+
+let timer = null;
+$('play').onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $('play').textContent = 'Play'; return; }
+  $('play').textContent = 'Pause';
+  if ($('step').value === $('step').max) $('step').value = 0;
+  timer = setInterval(() => {
+    if ($('step').value === $('step').max) return $('play').onclick();
+    $('step').value = Number($('step').value) + 1;
+    update();
+  }, 900);
+  update();
+};
+
+renderer_loop();
+function renderer_loop() {
+  for (const view of views) {
+    const { clientWidth: w, clientHeight: h } = view.canvas;
+    view.renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    view.renderer.render(view.scene, camera);
+  }
+  controls.update();
+  requestAnimationFrame(renderer_loop);
+}
+</script>
+</body>
+</html>
