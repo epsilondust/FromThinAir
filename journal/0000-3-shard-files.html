@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>0002: The executor writes shard files</title>
+<title>0000-3: The executor writes shard files</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav><a href="index.html">Journal</a> · previous: <a href="0001-executor-and-player.html">0001</a> · next: <a href="0003-round-zero.html">0003</a></nav>
-<h1>0002: The executor writes shard files</h1>
+<nav><a href="index.html">Journal</a> · previous: <a href="0000-2-executor-and-player.html">0000-2</a> · next: <a href="0000-4-round-zero.html">0000-4</a></nav>
+<h1>0000-3: The executor writes shard files</h1>
 <p class="meta">2026-11-25 · <span class="status">Done, not reviewed</span></p>
 
 <p>The owner approved this step before it started.</p>
 
 <h2>Goal of this step</h2>
-<p>Make the code match the decision in <a href="0000-what-we-are-doing.html">entry 0000</a>: the
+<p>Make the code match the decision in <a href="0000-1-what-we-are-doing.html">entry 0000-1</a>: the
 dataset is stored as NumPy shard files. Before this step, the executor wrote JSON.</p>
 
 <h2>What was done</h2>
@@ -46,7 +46,7 @@ dataset is stored as NumPy shard files. Before this step, the executor wrote JSO
   <tr><th>Check</th><th>Result</th></tr>
   <tr><td>Read 2,000 traces back from a shard, run their moves again, and compare</td><td>All 2,000 rebuilt the stored mesh exactly</td></tr>
   <tr><td>Write the same shard in two separate Blender runs</td><td>Byte-identical files, same SHA-1</td></tr>
-  <tr><td>Export the new shard to JSON and compare with the JSON from entry 0001</td><td>Identical. All 20 traces match.</td></tr>
+  <tr><td>Export the new shard to JSON and compare with the JSON from entry 0000-2</td><td>Identical. All 20 traces match.</td></tr>
   <tr><td>Size of the 20 sample traces</td><td>4.6 KB as a shard, against 38 KB as JSON</td></tr>
   <tr><td>Size of 2,000 traces</td><td>179 KB, which is about 90 bytes per trace</td></tr>
 </table>

@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>0000: What we are doing, and how we will judge it</title>
+<title>0000-1: What we are doing, and how we will judge it</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav><a href="index.html">Journal</a> · next: <a href="0001-executor-and-player.html">0001</a></nav>
-<h1>0000: What we are doing, and how we will judge it</h1>
+<nav><a href="index.html">Journal</a> · next: <a href="0000-2-executor-and-player.html">0000-2</a></nav>
+<h1>0000-1: What we are doing, and how we will judge it</h1>
 <p class="meta">2026-11-25 · <span class="status proposed">Proposed</span></p>
 
 <p>This page is the shared picture of the project. If anything here turns out to be
@@ -29,9 +29,9 @@ example.</p>
 
 <figure>
   <div class="frames">
-    <figure><img src="images/0001/step-0.svg" alt="A plain cube"><figcaption>Start: a cube</figcaption></figure>
-    <figure><img src="images/0001/step-2.svg" alt="The cube after two moves"><figcaption>After 2 random moves</figcaption></figure>
-    <figure><img src="images/0001/step-5.svg" alt="The cube after five moves"><figcaption>After 5 moves: a new example</figcaption></figure>
+    <figure><img src="images/0000-2/step-0.svg" alt="A plain cube"><figcaption>Start: a cube</figcaption></figure>
+    <figure><img src="images/0000-2/step-2.svg" alt="The cube after two moves"><figcaption>After 2 random moves</figcaption></figure>
+    <figure><img src="images/0000-2/step-5.svg" alt="The cube after five moves"><figcaption>After 5 moves: a new example</figcaption></figure>
   </div>
   <figcaption>One example being made. We know its steps because we picked them.</figcaption>
 </figure>
@@ -126,7 +126,7 @@ The owner's reason: USD is too heavy. The format that replaces it must therefore
 <p>How a trace maps onto USD:</p>
 <table>
   <tr><th>Part of a trace</th><th>Where it goes in USD</th></tr>
-  <tr><td>One trace</td><td>One mesh, named like <code>/trace_0003</code></td></tr>
+  <tr><td>One trace</td><td>One mesh, named like <code>/trace_0000-4</code></td></tr>
   <tr><td>The mesh after each move</td><td>One time sample per step. Step 0 is frame 0, step 1 is frame 1.</td></tr>
   <tr><td>The move list</td><td>Three custom attributes on the mesh: <code>moves:op</code>, <code>moves:face</code>, <code>moves:amount</code></td></tr>
   <tr><td>Many traces</td><td>About 1,000 traces per file. That gives 1,000 files at product scale, not a million.</td></tr>
@@ -203,7 +203,7 @@ builds will cost more.</p>
   <li><strong>Arrays are harder to browse than named records.</strong> The start arrays do the bookkeeping.</li>
 </ul>
 
-<p>The executor writes this format as of <a href="0002-shard-files.html">entry 0002</a>.</p>
+<p>The executor writes this format as of <a href="0000-3-shard-files.html">entry 0000-3</a>.</p>
 
 <p>Still open inside this format: how many traces go in one shard, and where the per-trace
 extras live, such as origin, quality flags and executor version.</p>

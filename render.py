@@ -1,7 +1,7 @@
 """Draw every step of a trace as an SVG image.
 
-    python3 render.py traces.json 3 journal/images/0001
-    python3 render.py traces.json all journal/images/0003
+    python3 render.py traces.json 3 journal/images/0000-2
+    python3 render.py traces.json all journal/images/0000-4
 
 The first command draws every step of trace 3 as step-0.svg, step-1.svg and so on.
 In each image, the orange face is where the next move lands.
